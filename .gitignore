@@ -1,0 +1,9 @@
+node_modules
+dist
+.env
+.idea
+.firebase
+.firebaserc
+firebase.json
+*.mp4
+.env.local
