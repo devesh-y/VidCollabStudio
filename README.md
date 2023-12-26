@@ -1,30 +1,20 @@
-# React + TypeScript + Vite
+# Streamlined YouTube Collaboration for Creators and Editors
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Effortlessly create, collaborate, and publish YouTube videos with ease.**
 
-Currently, two official plugins are available:
+This web-based project empowers YouTube creators and editors to work together seamlessly, streamlining the video production process from start to finish.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+**Key Features:**
 
-## Expanding the ESLint configuration
+- **Seamless Video Uploads and Collaboration:**
+    - Creators effortlessly upload videos to the platform.
+    - Grant editors access to videos for collaboration.
+- **Direct YouTube Publishing in a Click:**
+    - Creators publish videos directly to YouTube with a single click.
+    - Set title, tags, and description of the video.
+- **Secure Authentication and Data Storage:**
+    - Firebase Authentication ensures secure login and user management.
+    - Reliable data storage with Firebase for videos and project information.
+- **Modern Tech Stack:**
+    - Built with React, Firebase, YouTube API, Google OAuth2.0, Express.js, TypeScript, and ShadCN UI for a robust and user-friendly experience.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
-
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
