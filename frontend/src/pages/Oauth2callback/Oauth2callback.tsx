@@ -1,7 +1,7 @@
 import {useNavigate, useSearchParams} from "react-router-dom";
 import {useEffect} from "react";
-import {TailSpin} from "react-loader-spinner";
-import {SetCookie} from "../../utils/get_set_cookies.ts";
+import { LuLoader2 } from "react-icons/lu";
+import {SetCookie} from "@/utils/get_set_cookies.ts";
 export const Oauth2callback=()=>{
     const navigate=useNavigate();
     const [searchParams]=useSearchParams();
@@ -30,16 +30,5 @@ export const Oauth2callback=()=>{
 
     }, [navigate,searchParams]);
 
-    return <div style={{display: "flex", justifyContent: "center",height:"100vh",alignItems:"center"}}>
-        <TailSpin
-            height="80"
-            width="80"
-            color="#4fa94d"
-            ariaLabel="tail-spin-loading"
-            radius="1"
-            wrapperStyle={{}}
-            wrapperClass=""
-            visible={true}
-        />
-    </div>
+    return <LuLoader2 className={"animate-spin flex justify-center"} size={50}/>
 }

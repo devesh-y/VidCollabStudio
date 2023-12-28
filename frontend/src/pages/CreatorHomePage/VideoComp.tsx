@@ -1,10 +1,23 @@
 import React, {memo, useCallback, useRef, useState} from "react";
 import {videoInfo} from "./CreatorHomePage.tsx";
 import "./videoComp.css"
-import {Button, Dialog, Flex, TextField,Text} from "@radix-ui/themes";
+
 import {deleteDoc, doc, updateDoc} from "firebase/firestore";
-import {database, fireStorage} from "../../utils/firebaseconf.ts";
+import {database, fireStorage} from "@/utils/firebaseconf.ts";
 import {deleteObject, getDownloadURL, ref} from "firebase/storage";
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger
+} from "@/components/ui/dialog.tsx";
+import {Label} from "@/components/ui/label.tsx";
+import {Input} from "@/components/ui/input.tsx";
+import {Button} from "@/components/ui/button.tsx";
 export const VideoComp=memo(({video,email,setVideos,videos,editorEmailLogin}:{video:videoInfo,email:string,setVideos: React.Dispatch<React.SetStateAction<videoInfo[]>>,videos:videoInfo[],editorEmailLogin:string})=>{
     const promtInfo=useRef<HTMLButtonElement>(null)
     const [title,setTitle]=useState(video.title);
@@ -81,47 +94,47 @@ export const VideoComp=memo(({video,email,setVideos,videos,editorEmailLogin}:{vi
     },[email, uploadloading, video.id])
 
     return <>
-        <Dialog.Root>
-            <Dialog.Trigger>
-               <button hidden={true} ref={promtInfo}></button>
-            </Dialog.Trigger>
+        <Dialog>
+            <DialogTrigger>
+                <button hidden={true} ref={promtInfo}></button>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Update Video Info</DialogTitle>
+                    <DialogDescription>
+                        Make changes to your video
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="name" className="text-right">
+                            Title:
+                        </Label>
+                        <Input  className="col-span-3" placeholder="Enter video title" value={title} onChange={(e) => setTitle(e.target.value)}/>
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="name" className="text-right">
+                            Description:
+                        </Label>
+                        <Input  className="col-span-3" placeholder="Enter video description" value={description} onChange={(e) => setDescription(e.target.value)}/>
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="username" className="text-right">
+                            Tags:
+                        </Label>
+                        <Input  className="col-span-3" placeholder="Enter tags separated by ," value={tags} onChange={(e) => setTags(e.target.value)}/>
+                    </div>
+                </div>
+                <DialogFooter className="sm:justify-end">
+                    <DialogClose asChild>
+                        <Button type="button" variant="default" onClick={updateVideoInfoFunc}>
+                            Update
+                        </Button>
+                    </DialogClose>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
 
-            <Dialog.Content style={{maxWidth: 450}}>
-                <Dialog.Title>Update Video Info</Dialog.Title>
-                <Dialog.Description size="2" mb="4">
-                    Make changes to your video.
-                </Dialog.Description>
-
-                <Flex direction="column" gap="3">
-                    <label>
-                        <Text as="div" size="2" mb="1" weight="bold">
-                            Title
-                        </Text>
-                        <TextField.Input placeholder="Enter video title" value={title} onChange={(e)=>setTitle(e.target.value)}/>
-                    </label>
-                    <label>
-                        <Text as="div" size="2" mb="1" weight="bold">
-                            Description
-                        </Text>
-                        <TextField.Input placeholder="Enter video description" value={description} onChange={(e)=>setDescription(e.target.value)}/>
-                    </label>
-                    <label>
-                        <Text as="div" size="2" mb="1" weight="bold">
-                            Tags
-                        </Text>
-                        <TextField.Input placeholder="Enter tags separated by ," value={tags} onChange={(e)=>setTags(e.target.value)}/>
-                    </label>
-
-
-                </Flex>
-
-                <Flex gap="3" mt="4" justify="end">
-                    <Dialog.Close>
-                        <Button onClick={updateVideoInfoFunc}>Update</Button>
-                    </Dialog.Close>
-                </Flex>
-            </Dialog.Content>
-        </Dialog.Root>
         <div className={"videoinfo"} style={{
             display: "flex",
             justifyContent: "space-between",
@@ -136,7 +149,6 @@ export const VideoComp=memo(({video,email,setVideos,videos,editorEmailLogin}:{vi
                      if(editorEmailLogin=="") {
                          promtInfo.current?.click()
                      }
-
 
                  }}>
                 <div style={{fontWeight: "500"}}>{video.title} </div>

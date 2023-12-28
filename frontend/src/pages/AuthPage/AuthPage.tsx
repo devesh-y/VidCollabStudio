@@ -1,12 +1,12 @@
 import "./AuthPage.css"
 import {useNavigate} from "react-router-dom";
 import {useCallback, useEffect, useState} from "react";
-import {HandleEditorLogin} from "../../utils/HandleEditorLogin.ts";
+import {HandleEditorLogin} from "@/utils/HandleEditorLogin.ts";
 import {FcGoogle} from "react-icons/fc";
-import {GetCookie, SetCookie} from "../../utils/get_set_cookies.ts";
-import {TailSpin} from "react-loader-spinner";
+import {GetCookie, SetCookie} from "@/utils/get_set_cookies.ts";
+import { LuLoader2 } from "react-icons/lu";
 import {doc, getDoc } from "firebase/firestore";
-import {database} from "../../utils/firebaseconf.ts";
+import {database} from "@/utils/firebaseconf.ts";
 
 export const AuthPage = () => {
     const [ShowPage, setShowPage] = useState(false);
@@ -102,18 +102,8 @@ export const AuthPage = () => {
                 </div>
             </div>
 
-        </> : <div style={{display: "flex", justifyContent: "center"}}>
-            <TailSpin
-                height="80"
-                width="80"
-                color="#4fa94d"
-                ariaLabel="tail-spin-loading"
-                radius="1"
-                wrapperStyle={{}}
-                wrapperClass=""
-                visible={true}
-            />
-        </div>
+        </> :
+            <LuLoader2 className={"animate-spin flex justify-center"} size={50}/>
         }
 
     </div>

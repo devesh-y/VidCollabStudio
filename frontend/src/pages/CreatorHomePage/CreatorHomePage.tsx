@@ -1,9 +1,9 @@
 import {useCallback, useEffect, useState} from "react";
-import {GetCookie} from "../../utils/get_set_cookies.ts";
+import {GetCookie} from "@/utils/get_set_cookies.ts";
 import {useNavigate} from "react-router-dom";
-import {TailSpin} from "react-loader-spinner";
+import { LuLoader2 } from "react-icons/lu";
 import {collection, doc, getDoc, getDocs, setDoc} from "firebase/firestore";
-import {database} from "../../utils/firebaseconf.ts";
+import {database} from "@/utils/firebaseconf.ts";
 import {EditorPanel} from "./EditorPanel.tsx";
 import {VideosPanel} from "./VideosPanel.tsx";
 export type videoInfo={
@@ -90,10 +90,7 @@ export const CreatorHomePage=()=>{
 
                 </div>
             </div>
-        </> : <div style={{display: "flex", justifyContent: "center"}}>
-                <TailSpin height="80" width="80" color="#4fa94d" ariaLabel="tail-spin-loading" radius="1" wrapperStyle={{}} wrapperClass="" visible={true}
-                />
-            </div>
+        </> : <LuLoader2 className={"animate-spin flex justify-center"} size={50}/>
     }
     </>
 }

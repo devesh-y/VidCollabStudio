@@ -1,8 +1,20 @@
 import React, {memo, useCallback, useState} from "react";
 import {doc, getDoc, setDoc, updateDoc} from "firebase/firestore";
-import {database} from "../../utils/firebaseconf.ts";
-import {Button, Dialog, Flex, Text, TextField} from "@radix-ui/themes";
+import {database} from "@/utils/firebaseconf.ts";
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger
+} from "@/components/ui/dialog"
 
+import { Button } from "@/components/ui/button"
+import {Input} from "@/components/ui/input.tsx";
+import {Label} from "@/components/ui/label.tsx";
 export const EditorPanel = memo(({editors,setEditors,email}:{editors:string[],setEditors: React.Dispatch<React.SetStateAction<string[]>>,email:string}) => {
     const [addeditor,setaddeditor]=useState("");
     const addeditorfunc=useCallback(()=>{
@@ -27,10 +39,14 @@ export const EditorPanel = memo(({editors,setEditors,email}:{editors:string[],se
             //add in the editor doc
             getDoc( doc(database,'editors',addeditor)).then((snap)=>{
                 if(!snap.exists()){
-                    setDoc(doc(database, 'editors',addeditor), {creator:email});
+                    setDoc(doc(database, 'editors',addeditor), {creator:email}).catch(()=>{
+                        console.log("failed to add");
+                    });
                 }
                 else{
-                    updateDoc(doc(database, 'editors',addeditor), {creator:email});
+                    updateDoc(doc(database, 'editors',addeditor), {creator:email}).catch(()=>{
+                        console.log("failed to add");
+                    })
                 }
             })
         }
@@ -58,42 +74,36 @@ export const EditorPanel = memo(({editors,setEditors,email}:{editors:string[],se
 
     },[editors, email, setEditors])
     return <div style={{display: "table-cell", minWidth: "300px", width: "300px", backgroundColor: "#d6d6e7", borderRadius: "10px", padding: "10px"}}>
-        <Dialog.Root>
-            <Dialog.Trigger>
-                <div style={{
-                    cursor:"default",
-                    backgroundColor: "green",
-                    padding: "5px",
-                    borderRadius: "10px",
-                    marginBottom: "10px",
-                    fontWeight: "800",
-                    color: "white",
-                    width: "fit-content"
-                }} >Add Editor
+        <Dialog>
+            <DialogTrigger>
+                <div style={{cursor: "default", backgroundColor: "green", padding: "5px", borderRadius: "10px", marginBottom: "10px", fontWeight: "800", color: "white", width: "fit-content"
+                }}>Add Editor
                 </div>
-            </Dialog.Trigger>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Update Editors Panel</DialogTitle>
+                    <DialogDescription>
+                        Allow access to editors
+                    </DialogDescription>
+                </DialogHeader>
 
-            <Dialog.Content style={{maxWidth: 450}}>
-                <Dialog.Title>Update Editors Panel</Dialog.Title>
-                <Dialog.Description size="2" mb="4">
-                    Allow access to editors
-                </Dialog.Description>
+                <div className="flex items-center gap-4 py-4">
+                    <Label htmlFor="name" >
+                        Email:
+                    </Label>
+                    <Input  value={addeditor} onChange={(e)=>setaddeditor(e.target.value)}/>
+                </div>
+                <DialogFooter className="sm:justify-end">
+                    <DialogClose>
+                        <Button type="button" variant="default" onClick={addeditorfunc}>
+                            Update
+                        </Button>
+                    </DialogClose>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
 
-                <Flex direction="column" gap="3">
-                    <label>
-                        <Text as="div" size="2" mb="1" weight="bold">
-                            Email
-                        </Text>
-                        <TextField.Input placeholder="Enter editor email address"  value={addeditor} onChange={(e)=>setaddeditor(e.target.value)}/>
-                    </label>
-                </Flex>
-                <Flex gap="3" mt="4" justify="end">
-                    <Dialog.Close>
-                        <Button onClick={addeditorfunc}>Update</Button>
-                    </Dialog.Close>
-                </Flex>
-            </Dialog.Content>
-        </Dialog.Root>
 
         <div style={{
             backgroundColor: "skyblue",

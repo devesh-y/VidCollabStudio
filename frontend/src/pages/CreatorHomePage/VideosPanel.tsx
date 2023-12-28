@@ -3,7 +3,7 @@ import {videoInfo} from "./CreatorHomePage.tsx";
 import {VideoComp} from "./VideoComp.tsx";
 import {SHA256} from "crypto-js";
 import { ref, uploadBytesResumable } from "firebase/storage";
-import {database, fireStorage} from "../../utils/firebaseconf.ts";
+import {database, fireStorage} from "@/utils/firebaseconf.ts";
 import {doc, setDoc } from "firebase/firestore";
 
 export const VideosPanel=memo(({videos,email,setVideos,editorEmailLogin}:{videos:videoInfo[],email:string,setVideos: React.Dispatch<React.SetStateAction<videoInfo[]>>,editorEmailLogin:string})=>{
@@ -86,9 +86,7 @@ export const VideosPanel=memo(({videos,email,setVideos,editorEmailLogin}:{videos
         {email != "" ? <div style={{
             display: "flex",
             flexDirection: "column",
-            gap: '10px',
-            border: "solid 1px black", borderRadius: "10px", boxShadow: "0px 0px 2px 2px black"
-        }}>
+            gap: '10px', borderRadius: "10px"}}>
             {videos.map((value, index) => {
                 return <VideoComp key={index} video={value} email={email} setVideos={setVideos} videos={videos} editorEmailLogin={editorEmailLogin}/>
             })}
