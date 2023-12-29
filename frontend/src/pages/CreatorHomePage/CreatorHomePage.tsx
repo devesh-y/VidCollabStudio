@@ -1,7 +1,6 @@
 import {useCallback, useEffect, useState} from "react";
 import {GetCookie} from "@/utils/get_set_cookies.ts";
 import {useNavigate} from "react-router-dom";
-import { LuLoader2 } from "react-icons/lu";
 import {collection, doc, getDoc, getDocs, setDoc} from "firebase/firestore";
 import {database} from "@/utils/firebaseconf.ts";
 import {EditorPanel} from "./EditorPanel.tsx";
@@ -40,14 +39,14 @@ export const CreatorHomePage=()=>{
                         setEditors(editors);
                     }
                 }
-                
+
                 setLoading(false)
             })
         }else{
             setLoading(false)
         }
 
-        
+
     },[editorEmailLogin, email])
     useEffect(() => {
         const email=GetCookie('creator')
@@ -78,19 +77,15 @@ export const CreatorHomePage=()=>{
 
     }, [RetrieveData, navigate])
     return <>
-    {
-        !loading? <>
             <div style={{padding: "5px", borderRadius: "15px", backgroundColor: "#e5e591", fontSize: "2em", color: "#053081", fontWeight: 800, width: "fit-content", margin: "10px"}}>
                 Vid Collab Studio
             </div>
             <div style={{display: "table", overflow: "auto", width: "100%", borderSpacing: "10px"}}>
                 <div style={{display: "table-row"}}>
-                    <VideosPanel videos={videos} email={email} setVideos={setVideos} editorEmailLogin={editorEmailLogin}/>
+                    <VideosPanel videos={videos} email={email} setVideos={setVideos} editorEmailLogin={editorEmailLogin} loading={loading}/>
                     {editorEmailLogin==""?<EditorPanel editors={editors} setEditors={setEditors} email={email} />:<></>}
 
                 </div>
             </div>
-        </> : <LuLoader2 className={"animate-spin flex justify-center"} size={50}/>
-    }
-    </>
+        </>
 }

@@ -103,7 +103,7 @@ export const AuthPage = () => {
             </div>
 
         </> :
-            <LuLoader2 className={"animate-spin flex justify-center"} size={50}/>
+            <LuLoader2 className={"animate-spin"} size={50}/>
         }
 
     </div>

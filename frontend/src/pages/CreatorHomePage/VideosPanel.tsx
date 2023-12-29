@@ -5,8 +5,9 @@ import {SHA256} from "crypto-js";
 import { ref, uploadBytesResumable } from "firebase/storage";
 import {database, fireStorage} from "@/utils/firebaseconf.ts";
 import {doc, setDoc } from "firebase/firestore";
+import {LuLoader2} from "react-icons/lu";
 
-export const VideosPanel=memo(({videos,email,setVideos,editorEmailLogin}:{videos:videoInfo[],email:string,setVideos: React.Dispatch<React.SetStateAction<videoInfo[]>>,editorEmailLogin:string})=>{
+export const VideosPanel=memo(({videos,email,setVideos,editorEmailLogin,loading}:{loading:boolean,videos:videoInfo[],email:string,setVideos: React.Dispatch<React.SetStateAction<videoInfo[]>>,editorEmailLogin:string})=>{
     const [uploadloading,setuploadloading]=useState(false);
     const inputUploadRef=useRef<HTMLInputElement>(null)
     const uploadVideoFunc=useCallback(async ()=>{
@@ -83,15 +84,18 @@ export const VideosPanel=memo(({videos,email,setVideos,editorEmailLogin}:{videos
             fontWeight: "800"
         }}>Creator Videos
         </div>
-        {email != "" ? <div style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: '10px', borderRadius: "10px"}}>
-            {videos.map((value, index) => {
-                return <VideoComp key={index} video={value} email={email} setVideos={setVideos} videos={videos} editorEmailLogin={editorEmailLogin}/>
-            })}
-        </div>:<></>}
 
+        {loading?<div className={"flex justify-center"}><LuLoader2 className={"animate-spin"} size={50}/></div>:
+            <>
+                {email != "" ? <div style={{display: "flex", flexDirection: "column", gap: '10px', borderRadius: "10px"}}>
+                        {videos.map((value, index) => {
+                            return <VideoComp key={index} video={value} email={email} setVideos={setVideos} videos={videos}
+                                                  editorEmailLogin={editorEmailLogin}/>
+                            })}
+                </div>:<></>
+                }
+            </>
+        }
 
     </div>
 })

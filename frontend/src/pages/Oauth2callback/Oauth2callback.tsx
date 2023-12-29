@@ -30,5 +30,5 @@ export const Oauth2callback=()=>{
 
     }, [navigate,searchParams]);
 
-    return <LuLoader2 className={"animate-spin flex justify-center"} size={50}/>
+    return <div className={"flex justify-center"}><LuLoader2 className={"animate-spin"} size={50}/></div>
 }

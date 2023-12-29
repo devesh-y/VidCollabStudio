@@ -95,8 +95,7 @@ export const VideoComp=memo(({video,email,setVideos,videos,editorEmailLogin}:{vi
 
     return <>
         <Dialog>
-            <DialogTrigger>
-                <button hidden={true} ref={promtInfo}></button>
+            <DialogTrigger ref={promtInfo} hidden={true}>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>

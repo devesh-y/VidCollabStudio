@@ -75,10 +75,8 @@ export const EditorPanel = memo(({editors,setEditors,email}:{editors:string[],se
     },[editors, email, setEditors])
     return <div style={{display: "table-cell", minWidth: "300px", width: "300px", backgroundColor: "#d6d6e7", borderRadius: "10px", padding: "10px"}}>
         <Dialog>
-            <DialogTrigger>
-                <div style={{cursor: "default", backgroundColor: "green", padding: "5px", borderRadius: "10px", marginBottom: "10px", fontWeight: "800", color: "white", width: "fit-content"
-                }}>Add Editor
-                </div>
+            <DialogTrigger asChild>
+                    <Button variant="outline">Add Editor</Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
@@ -95,7 +93,7 @@ export const EditorPanel = memo(({editors,setEditors,email}:{editors:string[],se
                     <Input  value={addeditor} onChange={(e)=>setaddeditor(e.target.value)}/>
                 </div>
                 <DialogFooter className="sm:justify-end">
-                    <DialogClose>
+                    <DialogClose asChild>
                         <Button type="button" variant="default" onClick={addeditorfunc}>
                             Update
                         </Button>
@@ -109,6 +107,7 @@ export const EditorPanel = memo(({editors,setEditors,email}:{editors:string[],se
             backgroundColor: "skyblue",
             padding: "5px",
             borderRadius: "10px",
+            marginTop: "10px",
             marginBottom: "10px",
             fontWeight: "800"
         }}>Editors</div>
