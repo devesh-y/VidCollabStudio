@@ -1,9 +1,8 @@
 node_modules
 dist
-.env
+.env*
 .idea
 .firebase
 .firebaserc
 firebase.json
 *.mp4
-.env.local
