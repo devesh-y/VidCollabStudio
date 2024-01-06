@@ -1,5 +1,6 @@
-import { firebaseAuth} from "./firebaseconf.ts";
+import {database, firebaseAuth} from "./firebaseconf.ts";
 import {GoogleAuthProvider,signInWithPopup} from "firebase/auth"
+import {doc, getDoc, setDoc} from "firebase/firestore";
 
 
 export const HandleEditorLogin=async () =>{
@@ -8,7 +9,14 @@ export const HandleEditorLogin=async () =>{
 		const {user}= await signInWithPopup(firebaseAuth,provider);
 		if(user.email  && user.emailVerified){
 			return new Promise((resolve)=>{
-				resolve(user.email);
+				getDoc(doc(database,"editors",user.email as string)).then((snap)=>{
+					if(!snap.exists()){
+						setDoc(doc(database,"editors",user.email as string),{
+							creators:[]
+						})
+					}
+					resolve(user.email);
+				})
 			})
 		}
 		else{

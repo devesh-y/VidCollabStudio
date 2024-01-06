@@ -1,5 +1,0 @@
-{
-    "watch": ["."],
-    "ext": "ts",
-    "exec": "node --env-file=.env.local -r ts-node/register index.ts"
-}
