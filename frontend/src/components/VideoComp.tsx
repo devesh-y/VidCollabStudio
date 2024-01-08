@@ -131,8 +131,8 @@ export const VideoComp=memo(({video,setVideos,videos,editorEmail,creatorEmail}:{
                          promtInfo.current?.click()
                      }
                  }}>
-                <div className={"font-bold"}>{video.title} </div>
-                <i>Description: {video.description}</i>
+                <p className={"font-bold"}>{video.title} </p>
+                <p><span className={"font-bold"}>Description:</span> <i>{video.description}</i></p>
             </div>
 
             <div className={"flex items-center gap-2"}>

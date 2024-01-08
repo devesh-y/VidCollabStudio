@@ -7,6 +7,7 @@ import {LuLoader2} from "react-icons/lu";
 import {Button} from "@/components/ui/button.tsx";
 import {getCreatorVideos, videoInfoType} from "@/utilities/getCreatorVideos.ts";
 import {VideoComp} from "@/components/VideoComp.tsx";
+import {AskAI} from "@/components/AskAI.tsx";
 
 export const VideosPanel=memo(({creatorEmail,editorEmail}:{creatorEmail:string,editorEmail:string})=>{
     const [loading,setLoading]=useState(true);
@@ -81,7 +82,12 @@ export const VideosPanel=memo(({creatorEmail,editorEmail}:{creatorEmail:string,e
     }, [uploadVideoFunc]);
     return <div className={"m-1"}>
         <input type={"file"} ref={inputUploadRef} hidden={true} accept={"video/*"} multiple={false}/>
-        {creatorEmail != "" ? <Button className={"mb-2"} onClick={() => inputUploadRef.current?.click()} disabled={uploadLoading}>{uploadLoading ? "Uploading" : "Upload Video"}</Button>:<></>}
+        <div className={"flex items-center mb-1 gap-2"}>
+            {creatorEmail != "" ? <Button onClick={() => inputUploadRef.current?.click()} disabled={uploadLoading}>{uploadLoading ? "Uploading" : "Upload Video"}</Button>:<></>}
+            {editorEmail===""?<AskAI/>:<></>}
+
+        </div>
+
 
         <div className={"bg-gray-400 rounded-md p-2 font-bold mb-1"}>Creator Videos</div>
 
