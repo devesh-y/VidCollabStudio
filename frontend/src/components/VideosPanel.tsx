@@ -8,8 +8,9 @@ import {Button} from "@/components/ui/button.tsx";
 import {getCreatorVideos, videoInfoType} from "@/utilities/getCreatorVideos.ts";
 import {VideoComp} from "@/components/VideoComp.tsx";
 import {AskAI} from "@/components/AskAI.tsx";
+import {ChatPanel} from "@/components/ChatPanel.tsx";
 
-export const VideosPanel=memo(({creatorEmail,editorEmail}:{creatorEmail:string,editorEmail:string})=>{
+export const VideosPanel=memo(({creatorEmail,userType,editorEmail}:{creatorEmail:string,editorEmail:string,userType:string})=>{
     const [loading,setLoading]=useState(true);
     const [videos,setVideos]=useState<videoInfoType[]>([])
     const [uploadLoading,setUploadLoading]=useState(false);
@@ -83,8 +84,11 @@ export const VideosPanel=memo(({creatorEmail,editorEmail}:{creatorEmail:string,e
     return <div className={"m-1"}>
         <input type={"file"} ref={inputUploadRef} hidden={true} accept={"video/*"} multiple={false}/>
         <div className={"flex items-center mb-1 gap-2"}>
-            {creatorEmail != "" ? <Button onClick={() => inputUploadRef.current?.click()} disabled={uploadLoading}>{uploadLoading ? "Uploading" : "Upload Video"}</Button>:<></>}
-            {editorEmail===""?<AskAI/>:<></>}
+            <Button onClick={() => inputUploadRef.current?.click()} disabled={uploadLoading}>{uploadLoading ? "Uploading" : "Upload Video"}</Button>
+            {userType==="creator"?<AskAI/>:<></>}
+
+            {userType==="editor"?<ChatPanel fromUser={editorEmail} toUser={creatorEmail}/>:editorEmail!==""?<ChatPanel fromUser={creatorEmail} toUser={editorEmail}/>:<></>}
+
 
         </div>
 
@@ -94,7 +98,7 @@ export const VideosPanel=memo(({creatorEmail,editorEmail}:{creatorEmail:string,e
         {loading?<div className={"flex justify-center"}><LuLoader2 className={"animate-spin"} size={50}/></div>:
                 <div className={"flex flex-col gap-4"}>
                         {videos.map((value, index) => {
-                            return <VideoComp key={index} video={value} creatorEmail={creatorEmail} setVideos={setVideos} videos={videos} editorEmail={editorEmail}/>})
+                            return <VideoComp key={index} video={value} creatorEmail={creatorEmail} setVideos={setVideos} videos={videos} userType={userType}/>})
                         }
                 </div>
         }

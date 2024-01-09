@@ -11,7 +11,7 @@ import {GrUploadOption} from "react-icons/gr";
 import {FiDownloadCloud} from "react-icons/fi";
 import {MdDeleteForever} from "react-icons/md";
 import {videoInfoType} from "@/utilities/getCreatorVideos.ts";
-export const VideoComp=memo(({video,setVideos,videos,editorEmail,creatorEmail}:{video:videoInfoType,setVideos: React.Dispatch<React.SetStateAction<videoInfoType[]>>,videos:videoInfoType[],editorEmail:string,creatorEmail:string})=>{
+export const VideoComp=memo(({video,setVideos,videos,creatorEmail,userType}:{video:videoInfoType,setVideos: React.Dispatch<React.SetStateAction<videoInfoType[]>>,videos:videoInfoType[],creatorEmail:string,userType:string})=>{
     const promtInfo=useRef<HTMLButtonElement>(null)
     const [videoInfo,setVideoInfo]=useState({title:video.title,description:video.description,tags:video.tags})
     const [uploadingVideo,setUploadingVideo]=useState(false);
@@ -124,10 +124,10 @@ export const VideoComp=memo(({video,setVideos,videos,editorEmail,creatorEmail}:{
             </DialogContent>
         </Dialog>
 
-        <div className={"flex justify-between cursor-default p-2 rounded-md hover:bg-gray-200 items-center"} >
+        <div className={"flex justify-between cursor-default p-2 rounded-md hover:bg-gray-200 items-center gap-2"} >
             <div className={"flex flex-col gap-1"}
                  onClick={() => {
-                     if(editorEmail=="") {
+                     if(userType==="creator") {
                          promtInfo.current?.click()
                      }
                  }}>
@@ -136,9 +136,9 @@ export const VideoComp=memo(({video,setVideos,videos,editorEmail,creatorEmail}:{
             </div>
 
             <div className={"flex items-center gap-2"}>
-                {editorEmail == "" ? <Button title={"Upload to YouTube"}  className={"w-16"} variant={"secondary"} disabled={uploadingVideo} onClick={uploadToYoutube}>{uploadingVideo ? <LuLoader2 className={"animate-spin w-full h-full"} />:<GrUploadOption className={"w-full h-full"}  />}</Button>:<></>}
+                {userType == "creator" ? <Button title={"Upload to YouTube"}  className={"w-16"} variant={"secondary"} disabled={uploadingVideo} onClick={uploadToYoutube}>{uploadingVideo ? <LuLoader2 className={"animate-spin w-full h-full"} />:<GrUploadOption className={"w-full h-full"}  />}</Button>:<></>}
                 <Button className={"w-16"} onClick={downloadVideo}><FiDownloadCloud className={"w-full h-full"} /></Button>
-                {editorEmail == "" ? <Button variant={"destructive"} onClick={deleteVideo}><MdDeleteForever className={"w-full h-full"}  /></Button>:<></>}
+                {userType == "creator" ? <Button variant={"destructive"} onClick={deleteVideo} className={"w-16"} ><MdDeleteForever className={"w-full h-full"}  /></Button>:<></>}
 
             </div>
 

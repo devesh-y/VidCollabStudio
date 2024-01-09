@@ -6,6 +6,7 @@ import {Loader2} from "lucide-react";
 import {doc, getDoc} from "firebase/firestore";
 import {database} from "@/utilities/firebaseconf.ts";
 import {Button} from "@/components/ui/button.tsx";
+import {socket} from "@/utilities/socketConnection.ts";
 
 export const EditorPage=()=>{
     const [loading,setLoading]=useState(true);
@@ -27,6 +28,9 @@ export const EditorPage=()=>{
         const cookie=GetCookie('editor')
         if (cookie) {
             const {email}=JSON.parse(cookie);
+            socket.on("connect",()=>{
+                socket.emit("createMapping",email);
+            })
             retrieveCreators(email).then((data)=>{
                 setCreators(data as string[]);
                 setLoading(false);
@@ -56,7 +60,7 @@ export const EditorPage=()=>{
 
         </div>
         {currentCreator != "" ?
-            <VideosPanel creatorEmail={currentCreator} editorEmail={email}/> : <></>}
+            <VideosPanel creatorEmail={currentCreator} editorEmail={email} userType={"editor"}/> : <></>}
 
     </> : <div className={"h-svh flex justify-center items-center"}>
         <Loader2 className={"animate-spin w-10 h-10"}/>

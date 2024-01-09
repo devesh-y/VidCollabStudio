@@ -1,4 +1,4 @@
-import {memo, useCallback, useEffect, useState} from "react";
+import React, {memo, useCallback, useState} from "react";
 import {doc, getDoc, updateDoc} from "firebase/firestore";
 import {database} from "@/utilities/firebaseconf.ts";
 import {Button} from "@/components/ui/button.tsx";
@@ -7,8 +7,8 @@ import {Label} from "@/components/ui/label.tsx";
 import {Input} from "@/components/ui/input.tsx";
 import {toast} from "sonner";
 
-export const MyEditor=memo(({email}:{email:string})=>{
-    const [editor,setEditor]=useState("");
+export const MyEditor=memo(({email,editor,setEditor}:{email:string,editor:string,setEditor: React.Dispatch<React.SetStateAction<string>>})=>{
+   
     const [newEditor,setNewEditor]=useState("");
 
     const revokeEditor=useCallback(()=>{
@@ -39,7 +39,7 @@ export const MyEditor=memo(({email}:{email:string})=>{
             })
         }
 
-    },[editor, email])
+    },[editor, email, setEditor])
 
     const addEditorFunc=useCallback(()=>{
         const emailRegex: RegExp = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
@@ -71,17 +71,7 @@ export const MyEditor=memo(({email}:{email:string})=>{
                 }
             })
         }
-    },[email, newEditor])
-
-    useEffect( ()=>{
-        getDoc(doc(database,"creators",email)).then((snap)=>{
-            if(snap.exists()){
-                setEditor(snap.data().editor as string);
-            }
-
-        })
-
-    },[email])
+    },[email, newEditor, setEditor])
     return <div className={"m-1 min-w-60 w-fit flex flex-col border-gray-200 border-2 rounded-md px-3 py-1  gap-1"}>
         <p className={"text-center text-xl font-bold bg-gray-100 rounded-lg"}>My Editor</p>
         <div className={"flex justify-center items-center gap-4"}>

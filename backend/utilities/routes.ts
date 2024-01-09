@@ -28,6 +28,22 @@ router.get('/getAuthUrl', (_req, res) => {
     });
     res.send(JSON.stringify({authorizeUrl}));
 })
+router.post("/getPreviousChats",async (req,res)=>{
+    try {
+        const {chatId}=req.body;
+        let chats:{from:string,to:string,message:string}[]=[];
+        const snap=await getDoc(doc(database,"chats",chatId));
+        if(snap.exists()){
+            chats=snap.data().chats as {from:string,to:string,message:string}[];
+        }
+        res.status(200).send(JSON.stringify({chats}));
+    }
+    catch (e) {
+        res.status(500).send(JSON.stringify({error:"Internal Server Error"}))
+    }
+
+
+})
 router.post('/getEmail', async (req, res) => {
     const {code} = req.body;
     const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_url);
