@@ -5,7 +5,7 @@ import {Loader2, Star} from "lucide-react";
 import {Input} from "@/components/ui/input.tsx";
 import {socket} from "@/utilities/socketConnection.ts";
 import {toast} from "sonner";
-
+import ReactMarkdown from 'react-markdown';
 
 export const AskAI=memo(()=>{
     const [inputQues,setInputQues]=useState("");
@@ -54,7 +54,7 @@ export const AskAI=memo(()=>{
                 Generate
             </Button>
             <div>
-                {!allowQues?<Loader2 className={"animate-spin"}/>:<p>{aiAnswer}</p>}
+                {!allowQues?<Loader2 className={"animate-spin"}/>:<ReactMarkdown>{aiAnswer}</ReactMarkdown>}
             </div>
         </SheetContent>
     </Sheet>
