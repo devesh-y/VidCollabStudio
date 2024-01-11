@@ -6,7 +6,7 @@ import {Server} from "socket.io"
 import http from "http";
 import {router} from "./utilities/routes";
 import {getTitleDescription} from "./utilities/askAI";
-import {doc, updateDoc, arrayUnion, setDoc} from "firebase/firestore";
+import {doc, arrayUnion, setDoc} from "firebase/firestore";
 import {database} from "./utilities/firebaseConfiguration";
 const app = express();
 
@@ -41,16 +41,15 @@ io.on("connection",(socket)=>{
         const targetId=socketEmailMapping.get(to);
         if(targetId){
             socket.to(targetId).emit("chat",{from,message});
-            updateDoc(doc(database,"chats",chatId),{
-                chats:arrayUnion({from,to,message})
-            }).catch(()=>{
-                setDoc(doc(database,"chats",chatId),{
-                    chats:[{from,to,message}]
-                }).catch(()=>{
-                    console.log("error in storing chat")
-                })
-            })
         }
+        setDoc(doc(database,"chats",chatId),{
+                chats:arrayUnion({from,to,message})
+            },{
+                merge:true
+            }
+        ).catch(()=>{
+            console.log("error occurred while saving chats")
+        })
     })
     socket.on("disconnect",()=>{
         if(currEmail!=="" && socketEmailMapping.get(currEmail)){
