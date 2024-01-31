@@ -12,6 +12,7 @@ import {MdDeleteForever} from "react-icons/md";
 import {videoInfoType} from "@/utilities/getCreatorVideos.ts";
 import {Rating} from "@/components/Rating.tsx";
 import {deleteDoc, doc, updateDoc} from "firebase/firestore";
+import {Textarea} from "@/components/ui/textarea.tsx";
 export const VideoComp=memo(({video,dispatch,creatorEmail,userType}: {
     creatorEmail: string,
     dispatch:   React.Dispatch<{type: string, payload: videoInfoType | videoInfoType[] | string}>,
@@ -99,7 +100,7 @@ export const VideoComp=memo(({video,dispatch,creatorEmail,userType}: {
                         <Label htmlFor="name" className="text-right">
                             Description:
                         </Label>
-                        <Input  className="col-span-3" placeholder="Enter video description" value={videoInfo.description} onChange={(e) => setVideoInfo({...videoInfo,description: e.target.value})}/>
+                        <Textarea className="col-span-3 resize-none" placeholder="Enter video description" value={videoInfo.description} onChange={(e) => setVideoInfo({...videoInfo,description: e.target.value})}/>
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="username" className="text-right">
@@ -118,18 +119,18 @@ export const VideoComp=memo(({video,dispatch,creatorEmail,userType}: {
             </DialogContent>
         </Dialog>
 
-        <div className={"flex justify-between cursor-default p-2 rounded-md hover:bg-gray-200 items-center gap-2"} >
-            <div className={"flex flex-col gap-1"}
+        <div className={"flex justify-between cursor-default p-2 rounded-md hover:bg-gray-200 items-center gap-2 max-sm:flex-col"} >
+            <div className={"flex flex-col gap-1 max-sm:self-start"}
                  onClick={() => {
                      if(userType==="creator") {
                          promtInfo.current?.click()
                      }
                  }}>
-                <p className={"font-bold"}>{video.title} </p>
-                <p><span className={"font-bold"}>Description:</span> <i>{video.description}</i></p>
+                <p><span className={"font-bold"}>Title:</span> <i>{video.title}</i></p>
+                <p className={"overflow-hidden overflow-ellipsis line-clamp-2"}><span className={"font-bold"}>Description:</span> <i>{video.description}</i></p>
             </div>
 
-            <div className={"flex items-center gap-2"}>
+            <div className={"flex items-center gap-2 max-sm:self-center"}>
                 {userType==="creator"? <Rating dispatch={dispatch} video={video} creatorEmail={creatorEmail}/>  :<></>}
                 {userType == "creator" ? <Button title={"Upload to YouTube"}  className={"w-16"} variant={"secondary"} disabled={uploadingVideo} onClick={uploadToYoutube}>{uploadingVideo ? <LuLoader2 className={"animate-spin w-full h-full"} />:<GrUploadOption className={"w-full h-full"}  />}</Button>:<></>}
                 <Button className={"w-16"} onClick={downloadVideo}><FiDownloadCloud className={"w-full h-full"} /></Button>
