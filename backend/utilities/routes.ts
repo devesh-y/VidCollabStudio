@@ -126,3 +126,24 @@ router.post('/uploadVideo', (req:express.Request, res:express.Response) => {
     })
 
 })
+router.post("/updateRating", async (req,res)=>{
+    const {editedBy,prevRating,currRating,creatorEmail,id}=req.body;
+    try {
+        const tempRating=currRating-prevRating;
+        const tempPeople=(prevRating===0)?1:0;
+        const pr1=getDoc(doc(database,"editors",editedBy))
+        const pr2=updateDoc(doc(database, 'creators/' + creatorEmail + "/videos",id), {rating:currRating})
+        const response=await Promise.all([pr1,pr2]);
+        if(response[0].exists()){
+            await updateDoc(doc(database,"editors",editedBy),{
+                rating:((response[0].data().rating)?(response[0].data().rating):0)+tempRating,
+                people:((response[0].data().people)?(response[0].data().people):0)+tempPeople
+            })
+        }
+        res.status(200).send(JSON.stringify({message:"Updated Successfully"}))
+    }
+    catch (e) {
+        console.log(e)
+        res.status(500).send(JSON.stringify({error:"internal server error."}))
+    }
+})

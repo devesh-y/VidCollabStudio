@@ -1,5 +1,4 @@
 import React, {memo, useCallback, useRef, useState} from "react";
-import {deleteDoc, doc, updateDoc} from "firebase/firestore";
 import {database, fireStorage} from "@/utilities/firebaseconf.ts";
 import {deleteObject, getDownloadURL, ref} from "firebase/storage";
 import {Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger} from "@/components/ui/dialog.tsx";
@@ -11,21 +10,23 @@ import {GrUploadOption} from "react-icons/gr";
 import {FiDownloadCloud} from "react-icons/fi";
 import {MdDeleteForever} from "react-icons/md";
 import {videoInfoType} from "@/utilities/getCreatorVideos.ts";
-export const VideoComp=memo(({video,setVideos,videos,creatorEmail,userType}:{video:videoInfoType,setVideos: React.Dispatch<React.SetStateAction<videoInfoType[]>>,videos:videoInfoType[],creatorEmail:string,userType:string})=>{
+import {Rating} from "@/components/Rating.tsx";
+import {deleteDoc, doc, updateDoc} from "firebase/firestore";
+export const VideoComp=memo(({video,dispatch,creatorEmail,userType}: {
+    creatorEmail: string,
+    dispatch:   React.Dispatch<{type: string, payload: videoInfoType | videoInfoType[] | string}>,
+    userType: string,
+    video: videoInfoType,
+})=>{
     const promtInfo=useRef<HTMLButtonElement>(null)
     const [videoInfo,setVideoInfo]=useState({title:video.title,description:video.description,tags:video.tags})
     const [uploadingVideo,setUploadingVideo]=useState(false);
     const updateVideoInfoFunc=useCallback(()=>{
-        updateDoc(doc(database,'creators/'+creatorEmail+"/videos",video.id),{
-            title:videoInfo.title, description:videoInfo.description,tags:videoInfo.tags
-        }).then(()=>{
-            const otherVideos=videos.filter((tmp)=>{
-                return tmp!=video
-            })
-            const finalVideos=[...otherVideos,{title:videoInfo.title, description:videoInfo.description,tags:videoInfo.tags,id:video.id,filepath:video.filepath,thumbNailUrl:video.thumbNailUrl,thumbNailPath:video.thumbNailPath}]
-            setVideos(finalVideos);
+        updateDoc(doc(database, 'creators/' + creatorEmail + "/videos", video.id), videoInfo).then(()=>{
+            dispatch({type:'updateVideoInfo',payload: {...video,...videoInfo}})
         })
-    },[creatorEmail, setVideos, video, videoInfo.description, videoInfo.tags, videoInfo.title, videos])
+        
+    },[creatorEmail, dispatch, video, videoInfo])
 
     const downloadVideo=useCallback(()=>{
         getDownloadURL(ref(fireStorage,video.filepath)).then((url)=>{
@@ -36,26 +37,19 @@ export const VideoComp=memo(({video,setVideos,videos,creatorEmail,userType}:{vid
         })
     },[video.filepath])
     const deleteVideo=useCallback( ()=>{
-       
         //delete from files database
-        deleteDoc(doc(database,"creators/"+creatorEmail+"/videos",video.id)).catch(()=>{
+        const pr1=deleteDoc(doc(database,"creators/"+creatorEmail+"/videos",video.id)).catch(()=>{
             console.log("error in deleting from files database");
         })
-        
         //delete from storage
-        const deleteRef=ref(fireStorage,video.filepath);
-        deleteObject(deleteRef).catch(()=>{
+        const pr2=deleteObject(ref(fireStorage,video.filepath)).catch(()=>{
             console.log("error in deleting from storage");
         })
-        const index=videos.indexOf(video);
-        if(index!=-1){
-            const temp=Array.from(videos);
-            temp.splice(index,1);
-            setVideos(temp);
-            
-        }
+        Promise.all([pr1,pr2]).then(()=>{
+            dispatch({type:'deleteVideo',payload:video.id})
+        })
 
-    },[creatorEmail, setVideos, video, videos])
+    },[creatorEmail, dispatch, video])
     const uploadToYoutube=useCallback(()=>{
         if(uploadingVideo){
             return;
@@ -136,6 +130,7 @@ export const VideoComp=memo(({video,setVideos,videos,creatorEmail,userType}:{vid
             </div>
 
             <div className={"flex items-center gap-2"}>
+                {userType==="creator"? <Rating dispatch={dispatch} video={video} creatorEmail={creatorEmail}/>  :<></>}
                 {userType == "creator" ? <Button title={"Upload to YouTube"}  className={"w-16"} variant={"secondary"} disabled={uploadingVideo} onClick={uploadToYoutube}>{uploadingVideo ? <LuLoader2 className={"animate-spin w-full h-full"} />:<GrUploadOption className={"w-full h-full"}  />}</Button>:<></>}
                 <Button className={"w-16"} onClick={downloadVideo}><FiDownloadCloud className={"w-full h-full"} /></Button>
                 {userType == "creator" ? <Button variant={"destructive"} onClick={deleteVideo} className={"w-16"} ><MdDeleteForever className={"w-full h-full"}  /></Button>:<></>}

@@ -7,7 +7,9 @@ export type videoInfoType ={
     description:string,
     tags:string,
     thumbNailUrl:string,
-    thumbNailPath:string
+    thumbNailPath:string,
+    rating:number;
+    editedBy:string
 }
 
 export const getCreatorVideos=async (creatorEmail:string)=>{
@@ -15,7 +17,7 @@ export const getCreatorVideos=async (creatorEmail:string)=>{
         const videos: videoInfoType[] = [];
         getDocs(collection(database, "creators" + "/" + creatorEmail + "/videos")).then((docs)=>{
             docs.forEach((doc) => {
-                videos.push({id: doc.id, title: doc.data().title, description: doc.data().description, tags: doc.data().tags, thumbNailUrl: doc.data().thumbNailUrl, filepath: doc.data().filepath, thumbNailPath: doc.data().thumbNailPath
+                videos.push({id: doc.id, title: doc.data().title, description: doc.data().description, tags: doc.data().tags, thumbNailUrl: doc.data().thumbNailUrl, filepath: doc.data().filepath, thumbNailPath: doc.data().thumbNailPath,editedBy:doc.data().editedBy,rating:doc.data().rating
                 });
             })
             resolve(videos);

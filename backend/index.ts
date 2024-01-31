@@ -57,7 +57,9 @@ io.on("connection",(socket)=>{
         }
     })
 })
-app.use(express.json());
+app.use(express.json(),(_err:express.Errback,_req:express.Request,res:express.Response,_next:express.NextFunction)=>{
+    res.status(406).send("Invalid")
+});
 
 app.use(router)
 
