@@ -100,7 +100,7 @@ export const VideosPanel = memo(({creatorEmail, userType, editorEmail}: {
                 }
                 await myfileupload();
                 console.log("uploaded")
-                const values={id: CurrDateTime, title: filename, description: "", tags: "", thumbNailUrl: "", filepath, thumbNailPath: "",rating: 0, editedBy: (editorEmail)?editorEmail:""};
+                const values={id: CurrDateTime, title: filename, description: "", tags: "", thumbNailUrl: "", filepath, thumbNailPath: "",rating: 0, editedBy: (userType==="editor")?editorEmail:""};
                 await setDoc(doc(database, "creators" + "/" + creatorEmail + "/videos", CurrDateTime),values );
                 dispatch({type: 'addVideo', payload: values})
                 setUploadLoading(false);
@@ -110,7 +110,7 @@ export const VideosPanel = memo(({creatorEmail, userType, editorEmail}: {
             }
         }
 
-    }, [creatorEmail, editorEmail])
+    }, [creatorEmail, editorEmail, userType])
 
     useEffect(() => {
         const temp=inputUploadRef.current

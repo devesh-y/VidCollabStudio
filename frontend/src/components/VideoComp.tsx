@@ -131,7 +131,7 @@ export const VideoComp=memo(({video,dispatch,creatorEmail,userType}: {
             </div>
 
             <div className={"flex items-center gap-2 max-sm:self-center"}>
-                {userType==="creator"? <Rating dispatch={dispatch} video={video} creatorEmail={creatorEmail}/>  :<></>}
+                {userType==="creator" && video.editedBy? <Rating dispatch={dispatch} video={video} creatorEmail={creatorEmail}/>  :<></>}
                 {userType == "creator" ? <Button title={"Upload to YouTube"}  className={"w-16"} variant={"secondary"} disabled={uploadingVideo} onClick={uploadToYoutube}>{uploadingVideo ? <LuLoader2 className={"animate-spin w-full h-full"} />:<GrUploadOption className={"w-full h-full"}  />}</Button>:<></>}
                 <Button className={"w-16"} onClick={downloadVideo}><FiDownloadCloud className={"w-full h-full"} /></Button>
                 {userType == "creator" ? <Button variant={"destructive"} onClick={deleteVideo} className={"w-16"} ><MdDeleteForever className={"w-full h-full"}  /></Button>:<></>}
