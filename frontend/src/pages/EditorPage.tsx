@@ -7,6 +7,7 @@ import {doc, getDoc} from "firebase/firestore";
 import {database} from "@/utilities/firebaseconf.ts";
 import {Button} from "@/components/ui/button.tsx";
 import {socket} from "@/utilities/socketConnection.ts";
+import {CreatorsRequest} from "@/components/CreatorsRequest.tsx";
 
 export const EditorPage=()=>{
     const [loading,setLoading]=useState(true);
@@ -61,6 +62,10 @@ export const EditorPage=()=>{
         </div>
         {currentCreator != "" ?
             <VideosPanel creatorEmail={currentCreator} editorEmail={email} userType={"editor"}/> : <></>}
+        <div className={"m-1"}>
+            <CreatorsRequest editorEmail={email}/>
+        </div>
+
 
     </> : <div className={"h-svh flex justify-center items-center"}>
         <Loader2 className={"animate-spin w-10 h-10"}/>

@@ -43,7 +43,7 @@ io.on("connection",(socket)=>{
             socket.to(targetId).emit("chat",{from,message});
         }
         if(requestEditor){
-            setDoc(doc(database,"creators/"+from+"/EditorsRequest",to),{
+            setDoc(doc(database,"editors/"+to+"/CreatorsRequest",from),{
                     notify:true
                 },{
                     merge:true
