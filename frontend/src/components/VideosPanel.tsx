@@ -9,6 +9,7 @@ import {getCreatorVideos, videoInfoType} from "@/utilities/getCreatorVideos.ts";
 import {VideoComp} from "@/components/VideoComp.tsx";
 import {AskAI} from "@/components/AskAI.tsx";
 import {ChatPanel} from "@/components/ChatPanel.tsx";
+import {FindEditor} from "@/components/FindEditor.tsx";
 
 export const VideosPanel = memo(({creatorEmail, userType, editorEmail}: {
     creatorEmail: string,
@@ -129,7 +130,7 @@ export const VideosPanel = memo(({creatorEmail, userType, editorEmail}: {
                     className={"w-32"}>{uploadLoading ? "Uploading" : "Upload Video"}</Button>
             {userType === "creator" ? <AskAI/> : <></>}
 
-            {userType==="editor"?<ChatPanel fromUser={editorEmail} toUser={creatorEmail}/>:editorEmail!==""?<ChatPanel fromUser={creatorEmail} toUser={editorEmail}/>:<></>}
+            {userType==="editor"?<ChatPanel fromUser={editorEmail} toUser={creatorEmail} requestEditor={false}/>:editorEmail!==""?<ChatPanel fromUser={creatorEmail} toUser={editorEmail} requestEditor={false}/>:<></>}
 
 
         </div>
@@ -144,6 +145,11 @@ export const VideosPanel = memo(({creatorEmail, userType, editorEmail}: {
                         }
                 </div>
         }
+
+        {
+            userType === "creator" ? <FindEditor creatorEmail={creatorEmail}/> : <></>
+        }
+
 
     </div>
 })

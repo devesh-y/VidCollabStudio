@@ -12,7 +12,9 @@ export const HandleEditorLogin=async () =>{
 				getDoc(doc(database,"editors",user.email as string)).then((snap)=>{
 					if(!snap.exists()){
 						setDoc(doc(database,"editors",user.email as string),{
-							creators:[]
+							creators:[],
+							rating:0,
+							people:0
 						})
 					}
 					resolve(user.email);

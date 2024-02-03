@@ -37,10 +37,20 @@ io.on("connection",(socket)=>{
             socket.emit("askTitleDescription",{error:(e as Error).message});
         }
     })
-    socket.on("chat",({from,to,message,chatId}:{from:string,to:string,message:string,chatId:string})=>{
+    socket.on("chat",({from,to,message,chatId,requestEditor}:{from:string,to:string,message:string,chatId:string,requestEditor:string})=>{
         const targetId=socketEmailMapping.get(to);
         if(targetId){
             socket.to(targetId).emit("chat",{from,message});
+        }
+        if(requestEditor){
+            setDoc(doc(database,"creators/"+from+"/EditorsRequest",to),{
+                    notify:true
+                },{
+                    merge:true
+                }
+            ).catch(()=>{
+                console.log("error occurred while saving to requestEditor collection")
+            })
         }
         setDoc(doc(database,"chats",chatId),{
                 chats:arrayUnion({from,to,message})

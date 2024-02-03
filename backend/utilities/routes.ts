@@ -1,7 +1,7 @@
 
 import express, {Router} from "express"
 import {google} from "googleapis";
-import {doc, getDoc, setDoc, updateDoc} from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc} from "firebase/firestore";
 import {database} from "./firebaseConfiguration";
 import {uploadVideo} from "./uploadVideo";
 export const router=Router();
@@ -28,22 +28,7 @@ router.get('/getAuthUrl', (_req, res) => {
     });
     res.send(JSON.stringify({authorizeUrl}));
 })
-router.post("/getPreviousChats",async (req,res)=>{
-    try {
-        const {chatId}=req.body;
-        let chats:{from:string,to:string,message:string}[]=[];
-        const snap=await getDoc(doc(database,"chats",chatId));
-        if(snap.exists()){
-            chats=snap.data().chats as {from:string,to:string,message:string}[];
-        }
-        res.status(200).send(JSON.stringify({chats}));
-    }
-    catch (e) {
-        res.status(500).send(JSON.stringify({error:"Internal Server Error"}))
-    }
 
-
-})
 router.post('/getEmail', async (req, res) => {
     const {code} = req.body;
     const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_url);
@@ -126,24 +111,7 @@ router.post('/uploadVideo', (req:express.Request, res:express.Response) => {
     })
 
 })
-router.post("/updateRating", async (req,res)=>{
-    const {editedBy,prevRating,currRating,creatorEmail,id}=req.body;
-    try {
-        const tempRating=currRating-prevRating;
-        const tempPeople=(prevRating===0)?1:0;
-        const pr1=getDoc(doc(database,"editors",editedBy))
-        const pr2=updateDoc(doc(database, 'creators/' + creatorEmail + "/videos",id), {rating:currRating})
-        const response=await Promise.all([pr1,pr2]);
-        if(response[0].exists()){
-            await updateDoc(doc(database,"editors",editedBy),{
-                rating:((response[0].data().rating)?(response[0].data().rating):0)+tempRating,
-                people:((response[0].data().people)?(response[0].data().people):0)+tempPeople
-            })
-        }
-        res.status(200).send(JSON.stringify({message:"Updated Successfully"}))
-    }
-    catch (e) {
-        console.log(e)
-        res.status(500).send(JSON.stringify({error:"internal server error."}))
-    }
+
+router.all("*",(_req,res)=>{
+    res.status(404).send("route not found")
 })

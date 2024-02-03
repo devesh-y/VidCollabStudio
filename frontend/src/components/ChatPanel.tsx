@@ -4,44 +4,30 @@ import {Button} from "@/components/ui/button.tsx";
 import {Input} from "@/components/ui/input.tsx";
 import {socket} from "@/utilities/socketConnection.ts";
 import {toast} from "sonner";
+import {doc, getDoc} from "firebase/firestore";
+import {database} from "@/utilities/firebaseconf.ts";
 
 
-export const ChatPanel=memo(({fromUser,toUser}:{fromUser:string,toUser:string})=>{
+export const ChatPanel=memo(({fromUser,toUser,requestEditor}:{fromUser:string,toUser:string,requestEditor:boolean})=>{
     const chatRef=useRef<HTMLDivElement|null>(null)
     const [chats,setChats]=useState<{from:string,to:string,message:string}[]>([]);
     const [chatInput,setChatInput]=useState("");
     const getPreviousChats=useCallback(async ()=>{
-        try{
+
             const emailConc=[fromUser,toUser];
             emailConc.sort();
             const chatId=emailConc[0]+emailConc[1];
-            const response=await fetch(`${import.meta.env.VITE_BACKEND}/getPreviousChats`,{
-                method:"POST",
-                headers:{
-                    "content-type":"application/json"
-                },
-                body:JSON.stringify({chatId})
-            });
-            const {chats,error}:{chats?:{from: string, to: string, message: string}[],error?:string}=await response.json();
-            if(error){
-                toast(error, {
-                    action: {
-                        label: "Close",
-                        onClick: () => console.log("Close"),
-                    },
-                })
+            let chats:{from:string,to:string,message:string}[]=[];
+            const snap=await getDoc(doc(database,"chats",chatId));
+            if(snap.exists()){
+                chats=snap.data().chats as {from:string,to:string,message:string}[];
             }
-            else if (chats){
+            if (chats){
                 if(chatRef.current){
                     chatRef.current.scrollTop=chatRef.current.scrollHeight;
                 }
                 setChats(chats);
             }
-        }
-        catch (e){
-            throw new Error("Error in fetching messages.");
-        }
-
 
     },[fromUser, toUser])
     const sendMessage=useCallback((message:string)=>{
@@ -50,19 +36,19 @@ export const ChatPanel=memo(({fromUser,toUser}:{fromUser:string,toUser:string})=
             const emailConc=[fromUser,toUser];
             emailConc.sort();
             const chatId=emailConc[0]+emailConc[1];
-            socket.emit("chat",{from: fromUser,to:toUser,message,chatId})
+            socket.emit("chat",{from: fromUser,to:toUser,message,chatId,requestEditor})
             setChats([...chats,{from:fromUser,to:toUser,message}]);
             setChatInput("");
         }
-    },[chats, fromUser, toUser])
+    },[chats, fromUser, requestEditor, toUser])
     const getMessage=useCallback(({from,message}:{from:string,message:string})=>{
         if(toUser===from){
             setChats([...chats,{from,to:fromUser,message}]);
         }
     },[chats, fromUser, toUser])
     useEffect(() => {
-        getPreviousChats().catch((e)=>{
-            toast(e.message, {
+        getPreviousChats().catch(()=>{
+            toast("Error in fetching messages.", {
                 action: {
                     label: "Close",
                     onClick: () => console.log("Close"),

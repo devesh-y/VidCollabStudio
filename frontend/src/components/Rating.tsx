@@ -11,42 +11,47 @@ import {
 import {Button} from "@/components/ui/button.tsx";
 import {videoInfoType} from "@/utilities/getCreatorVideos.ts";
 import {toast} from "sonner";
+import {doc, getDoc, updateDoc} from "firebase/firestore";
+import {database} from "@/utilities/firebaseconf.ts";
 
 export const Rating=memo(({video,dispatch,creatorEmail}:{dispatch:  React.Dispatch<{type: string, payload: videoInfoType | videoInfoType[] | string}>,video:videoInfoType,creatorEmail:string})=>{
     const [ratingValue,setRatingValue]=useState(video.rating);
     const updateRatingFunc=useCallback(async ()=>{
         if(ratingValue!==0){
             try{
-                const response=await fetch(`${import.meta.env.VITE_BACKEND}`+"/updateRating",{
-                    method:"POST",
-                    headers:{
-                        "content-type":"application/json"
-                    },
-                    body:JSON.stringify({creatorEmail,id:video.id,editedBy:video.editedBy,currRating:ratingValue,prevRating:video.rating})
-                })
-                const res=await response.json();
-                if(res.error){
-                    toast("Rating update failed.", {
-                        action: {
-                            label: "Close",
-                            onClick: () => console.log("Close"),
-                        },
+
+                const editedBy=video.editedBy;
+                const currRating=ratingValue;
+                const prevRating=video.rating;
+                const id=video.id;
+
+                const tempRating=currRating-prevRating;
+                const tempPeople=(prevRating===0)?1:0;
+                const pr1=getDoc(doc(database,"editors",editedBy))
+                const pr2=updateDoc(doc(database, 'creators/' + creatorEmail + "/videos",id), {rating:currRating})
+                const response=await Promise.all([pr1,pr2]);
+                if(response[0].exists()){
+                    await updateDoc(doc(database,"editors",editedBy),{
+                        rating:response[0].data().rating+tempRating,
+                        people:response[0].data().people+tempPeople
                     })
-                    console.log(res.error)
-                }
-                else{
                     toast("Rating updated.", {
                         action: {
                             label: "Close",
                             onClick: () => console.log("Close"),
                         },
                     })
-                    console.log(res.message)
                     dispatch({type:"updateVideoInfo",payload: {...video,rating:ratingValue} })
                 }
+
             }
             catch (e) {
-                console.log(e)
+                toast("Rating update failed.", {
+                    action: {
+                        label: "Close",
+                        onClick: () => console.log("Close"),
+                    },
+                })
             }
         }
     },[creatorEmail, dispatch, ratingValue, video])
