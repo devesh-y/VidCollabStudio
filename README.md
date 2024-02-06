@@ -1,7 +1,5 @@
 # Streamlined YouTube Collaboration for Creators and Editors
 
-## Under Development!!!
-
 **Effortlessly create, collaborate, and publish YouTube videos with ease.**
 
 This web-based project empowers YouTube creators and editors to work together seamlessly, streamlining the video production process from start to finish.
@@ -20,8 +18,3 @@ This web-based project empowers YouTube creators and editors to work together se
 - **Modern Tech Stack:**
     - Built with React, Firebase, YouTube API, Google OAuth2.0, Express.js, TypeScript, and ShadCN UI for a robust and user-friendly experience.
 
-**Setup Repository**
-- git clone https://github.com/devesh-y/VidCollabStudio.git
-- rename the .env.dummy file to .env.local
-- navigate to frontend folder and run -> npm run dev
-- navigate to backend foldre and run -> npm run dev

@@ -1,15 +1,11 @@
-import { memo, useCallback, useEffect, useReducer, useRef, useState} from "react";
-import {SHA256} from "crypto-js";
-import { ref, uploadBytesResumable} from "firebase/storage";
-import {database, fireStorage} from "@/utilities/firebaseconf.ts";
-import { doc, getDoc, setDoc} from "firebase/firestore";
+import { memo, useCallback, useEffect, useReducer, useState} from "react";
 import {LuLoader2} from "react-icons/lu";
-import {Button} from "@/components/ui/button.tsx";
 import {getCreatorVideos, videoInfoType} from "@/utilities/getCreatorVideos.ts";
 import {VideoComp} from "@/components/VideoComp.tsx";
 import {AskAI} from "@/components/AskAI.tsx";
 import {ChatPanel} from "@/components/ChatPanel.tsx";
 import {FindEditor} from "@/components/FindEditor.tsx";
+import {UploadFile} from "@/components/UploadFile.tsx";
 
 export const VideosPanel = memo(({creatorEmail, userType, editorEmail}: {
     creatorEmail: string,
@@ -56,7 +52,6 @@ export const VideosPanel = memo(({creatorEmail, userType, editorEmail}: {
 
     }, [])
     const [videos, dispatch] = useReducer(videosReducer, [] as videoInfoType[]);
-    const [uploadLoading, setUploadLoading] = useState(false);
 
     useEffect(() => {
         getCreatorVideos(creatorEmail).then((videos) => {
@@ -65,69 +60,10 @@ export const VideosPanel = memo(({creatorEmail, userType, editorEmail}: {
         })
     }, [creatorEmail])
 
-    const inputUploadRef=useRef<HTMLInputElement>(null)
-    const uploadVideoFunc=useCallback(async ()=>{
-        const snap=await getDoc(doc(database,"creators",creatorEmail))
-        if(editorEmail!==""&& (!snap.exists() || snap.data().editor!=editorEmail)){
-            return;
-        }
-        if(inputUploadRef.current && inputUploadRef.current.files){
-            setUploadLoading(true);
-            const file=inputUploadRef.current.files[0];
-            const filename=file.name;
-            const arr=filename.split('.');
-            const fileExt=arr[arr.length-1];
-            const CurrDateTime=(new Date().getTime()).toString();
-            const uniqueId=SHA256(CurrDateTime+creatorEmail).toString();
-            const filepath=uniqueId+"."+fileExt;
-            const storeRef=ref(fireStorage,filepath);
-            try{
-                const myfileupload=async ()=>{
-                    return new Promise((resolve, reject)=>{
-                        const uploadtask=uploadBytesResumable(storeRef,file);
-                        uploadtask.on('state_changed',
-                            (snapshot) => {
-                                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                                console.log('Upload is ' + progress + '% done');
-                                if(progress==100){
-                                    resolve("done");
-                                }
-                            }, (error) => {
-                                reject(error);
-                            }
-                        );
-                    })
-                }
-                await myfileupload();
-                console.log("uploaded")
-                const values={id: CurrDateTime, title: filename, description: "", tags: "", thumbNailUrl: "", filepath, thumbNailPath: "",rating: 0, editedBy: (userType==="editor")?editorEmail:""};
-                await setDoc(doc(database, "creators" + "/" + creatorEmail + "/videos", CurrDateTime),values );
-                dispatch({type: 'addVideo', payload: values})
-                setUploadLoading(false);
-            }
-            catch (err) {
-                console.log("error in uploading file");
-            }
-        }
 
-    }, [creatorEmail, editorEmail, userType])
-
-    useEffect(() => {
-        const temp=inputUploadRef.current
-        if(temp){
-            inputUploadRef.current.addEventListener('change',uploadVideoFunc);
-        }
-        return ()=>{
-            if(temp){
-                temp.removeEventListener('change',uploadVideoFunc)
-            }
-        }
-    }, [uploadVideoFunc]);
     return <div className={"m-1"}>
-        <input type={"file"} ref={inputUploadRef} hidden={true} accept={"video/*"} multiple={false}/>
         <div className={"flex items-center mb-1 gap-2"}>
-            <Button onClick={() => inputUploadRef.current?.click()} disabled={uploadLoading}
-                    className={"w-32"}>{uploadLoading ? "Uploading" : "Upload Video"}</Button>
+            <UploadFile userType={userType} creatorEmail={creatorEmail} editorEmail={editorEmail} dispatch={dispatch}/>
             {userType === "creator" ? <AskAI/> : <></>}
 
             {userType==="editor"?<ChatPanel fromUser={editorEmail} toUser={creatorEmail} requestEditor={false}/>:editorEmail!==""?<ChatPanel fromUser={creatorEmail} toUser={editorEmail} requestEditor={false}/>:<></>}

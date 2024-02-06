@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useState} from "react";
+import {memo, useCallback, useEffect, useState} from "react";
 import {ChatPanel} from "@/components/ChatPanel.tsx";
 import {collection, getDocs} from "firebase/firestore";
 import {database} from "@/utilities/firebaseconf.ts";
@@ -8,7 +8,7 @@ type EditorInfo={
     people:number,
     rating:number
 }
-export const FindEditor=({creatorEmail}:{creatorEmail:string})=>{
+export const FindEditor=memo(({creatorEmail}:{creatorEmail:string})=>{
     const [editors,setEditors]=useState<EditorInfo[]>([]);
     const getEditors=useCallback(async () => {
         const editors:EditorInfo[]=[];
@@ -17,7 +17,7 @@ export const FindEditor=({creatorEmail}:{creatorEmail:string})=>{
             editors.push({email:doc.id,rating:doc.data().rating,people:doc.data().people})
         })
         setEditors(editors as EditorInfo[])
-        
+
     },[])
     useEffect(() => {
         getEditors().catch(()=>{
@@ -58,4 +58,4 @@ export const FindEditor=({creatorEmail}:{creatorEmail:string})=>{
         </div>
 
     </div>
-}
+})

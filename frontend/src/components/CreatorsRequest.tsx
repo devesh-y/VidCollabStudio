@@ -1,10 +1,10 @@
-import {useCallback, useEffect, useState} from "react";
+import {memo, useCallback, useEffect, useState} from "react";
 import {collection, getDocs} from "firebase/firestore";
 import {database} from "@/utilities/firebaseconf.ts";
 import {toast} from "sonner";
 import {ChatPanel} from "@/components/ChatPanel.tsx";
 
-export const CreatorsRequest=({editorEmail}:{editorEmail:string})=>{
+export const CreatorsRequest=memo(({editorEmail}:{editorEmail:string})=>{
     const [creators,setCreators]=useState<string[]>([]);
     const getCreatorsRequests=useCallback(async ()=>{
         const docs=await getDocs(collection(database, "editors/" + editorEmail + "/CreatorsRequest"));
@@ -36,4 +36,4 @@ export const CreatorsRequest=({editorEmail}:{editorEmail:string})=>{
         </div>
 
     </>
-}
+})
