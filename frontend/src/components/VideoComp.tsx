@@ -65,13 +65,10 @@ export const VideoComp=memo(({video,dispatch,creatorEmail,userType}: {
             body:JSON.stringify(data)
         }).then((res)=>{
             setUploadingVideo(false);
-            if(!res.ok){
-                throw new Error("error occured")
-            }
-            return res.text();
+            return res.json();
 
-        }).then((output)=>{
-            console.log(output)
+        }).then(({data,error})=>{
+            console.log(data||error)
         }).catch((err)=>{
             setUploadingVideo(false);
             console.log(err.message)

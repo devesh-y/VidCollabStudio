@@ -90,10 +90,10 @@ router.post('/uploadVideo', (req:express.Request, res:express.Response) => {
                         access_token:credentials.access_token,
                         refresh_token:credentials.refresh_token
                     }).then(()=>{
-                        uploadVideo(title, description, tagsarray, email, filepath,credentials.access_token as string,credentials.refresh_token as string).then((data) => {
-                            res.send(data);
+                        uploadVideo(title, description, tagsarray, filepath,credentials.access_token as string,credentials.refresh_token as string).then((data) => {
+                            res.status(200).send(JSON.stringify({data}));
                         }).catch((err) => {
-                            res.status(400).send(JSON.stringify({error:err}));
+                            res.status(501).send(JSON.stringify({error:err}));
                         })
                     })
 
