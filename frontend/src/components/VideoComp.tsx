@@ -13,6 +13,7 @@ import {videoInfoType} from "@/utilities/getCreatorVideos.ts";
 import {Rating} from "@/components/Rating.tsx";
 import {deleteDoc, doc, updateDoc} from "firebase/firestore";
 import {Textarea} from "@/components/ui/textarea.tsx";
+import {toast} from "sonner";
 export const VideoComp=memo(({video,dispatch,creatorEmail,userType}: {
     creatorEmail: string,
     dispatch:   React.Dispatch<{type: string, payload: videoInfoType | videoInfoType[] | string}>,
@@ -67,9 +68,23 @@ export const VideoComp=memo(({video,dispatch,creatorEmail,userType}: {
             setUploadingVideo(false);
             return res.json();
 
-        }).then(({data,error})=>{
+        }).then(({data,error}:{
+            data?:string,error?:string
+        })=>{
             console.log(data||error)
+            toast(data||error, {
+                action: {
+                    label: "Close",
+                    onClick: () => console.log("Close"),
+                },
+            })
         }).catch((err)=>{
+            toast("Bad Request", {
+                action: {
+                    label: "Close",
+                    onClick: () => console.log("Close"),
+                },
+            })
             setUploadingVideo(false);
             console.log(err.message)
         })

@@ -4,6 +4,7 @@ import {google} from "googleapis";
 import { doc, getDoc, setDoc, updateDoc} from "firebase/firestore";
 import {database} from "./firebaseConfiguration";
 import {uploadVideo} from "./uploadVideo";
+import {getTitleDescription} from "./askAI";
 export const router=Router();
 const client_id = process.env.VITE_CLIENT_ID;
 const client_secret = process.env.VITE_CLIENT_SECRET;
@@ -110,6 +111,15 @@ router.post('/uploadVideo', (req:express.Request, res:express.Response) => {
         res.status(404).send(`{error:"error in getting data from database"}`);
     })
 
+})
+router.post("/askTitleDescription",async (req,res)=>{
+    try {
+        const {content}=req.body;
+        const answer=await getTitleDescription(content);
+        res.status(200).send(JSON.stringify({answer}))
+    }catch (e){
+        res.status(501).send(JSON.stringify({error:(e as Error).message}))
+    }
 })
 
 router.all("*",(_req,res)=>{

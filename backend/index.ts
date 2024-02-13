@@ -5,7 +5,6 @@ config();
 import {Server} from "socket.io"
 import http from "http";
 import {router} from "./utilities/routes";
-import {getTitleDescription} from "./utilities/askAI";
 import {doc, arrayUnion, setDoc} from "firebase/firestore";
 import {database} from "./utilities/firebaseConfiguration";
 const app = express();
@@ -28,14 +27,6 @@ io.on("connection",(socket)=>{
     socket.on("createMapping",(email)=>{
         socketEmailMapping.set(email,socket.id);
         currEmail=email;
-    })
-    socket.on("askTitleDescription",async (content:string)=>{
-        try {
-            const answer=await getTitleDescription(content);
-            socket.emit("askTitleDescription",{answer});
-        }catch (e){
-            socket.emit("askTitleDescription",{error:(e as Error).message});
-        }
     })
     socket.on("chat",({from,to,message,chatId,requestEditor}:{from:string,to:string,message:string,chatId:string,requestEditor:string})=>{
         const targetId=socketEmailMapping.get(to);

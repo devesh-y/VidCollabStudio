@@ -1,42 +1,51 @@
-import {memo, useCallback, useEffect, useState} from "react";
+import {memo, useCallback, useState} from "react";
 import {Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger} from "@/components/ui/sheet.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {Loader2, Star} from "lucide-react";
 import {Input} from "@/components/ui/input.tsx";
-import {socket} from "@/utilities/socketConnection.ts";
 import {toast} from "sonner";
 import ReactMarkdown from 'react-markdown';
 
 export const AskAI=memo(()=>{
     const [inputQues,setInputQues]=useState("");
     const [allowQues,setAllowQues]=useState(true);
-    const getAnswerFunc=useCallback(({error,answer}:{error?:string,answer?:string})=>{
-        if(error){
-            toast("Error Occurred. Try Again.", {
-                action: {
-                    label: "Close",
-                    onClick: () => console.log("Close"),
-                },
-            })
-        }
-        else if(answer){
-            setAiAnswer(answer);
-        }
-        setAllowQues(true);
-    },[])
     const askAnswer=useCallback(()=>{
+        setInputQues("");
+        setAllowQues(false);
         if(inputQues!==""){
-            socket.emit("askTitleDescription",inputQues);
-            setInputQues("");
-            setAllowQues(false);
+            fetch(`${import.meta.env.VITE_BACKEND}/askTitleDescription`,{
+                method:"POST",
+                headers:{
+                    "content-type":"application/json"
+                },
+                body:JSON.stringify({content:inputQues})
+            }).then(res=>{
+                return res.json();
+            }).then(({error,answer}:{error?:string,answer?:string})=>{
+                if(error){
+                    toast("Error Occurred. Try Again.", {
+                        action: {
+                            label: "Close",
+                            onClick: () => console.log("Close"),
+                        },
+                    })
+                }
+                else if(answer){
+                    setAiAnswer(answer);
+                }
+                setAllowQues(true);
+            }).catch(()=>{
+                toast("Bad Request", {
+                    action: {
+                        label: "Close",
+                        onClick: () => console.log("Close"),
+                    },
+                })
+            })
+
         }
     },[inputQues])
-    useEffect(()=>{
-         socket.on("askTitleDescription",getAnswerFunc)
-        return ()=>{
-             socket.off("askTitleDescription",getAnswerFunc)
-        }
-    })
+
     const [aiAnswer,setAiAnswer]=useState("");
     return <Sheet>
         <SheetTrigger asChild>
