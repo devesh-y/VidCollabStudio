@@ -53,11 +53,14 @@ export const VideoComp=memo(({video,dispatch,creatorEmail,userType}: {
                 thumbNailPath =uniqueId+"."+fileExt;
                 const storeRef=ref(fireStorage,thumbNailPath);
                 thumbNailUrl =await fireStorageUpload(storeRef,file) as string;
-                deleteObject(ref(fireStorage,video.thumbNailPath)).catch(()=>{
-                    console.log("error in deleting previous thumbNail");
-                })
+                if(video.thumbNailPath){
+                    deleteObject(ref(fireStorage,video.thumbNailPath)).catch(()=>{
+                        console.log("error in deleting previous thumbNail");
+                    })
+                }
+
             }
-            await updateDoc(doc(database, 'creators/' + creatorEmail + "/videos", video.id), videoInfo);
+            await updateDoc(doc(database, 'creators/' + creatorEmail + "/videos", video.id), {...videoInfo,thumbNailPath,thumbNailUrl});
             dispatch({type:'updateVideoInfo',payload: {...video,...videoInfo,thumbNailPath,thumbNailUrl}})
             toast("Updated Successfully.", {
                 action: {
