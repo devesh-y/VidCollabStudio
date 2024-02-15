@@ -43,9 +43,9 @@ export const ChatPanel=memo(({fromUser,toUser,requestEditor}:{fromUser:string,to
     },[chats, fromUser, requestEditor, toUser])
     const getMessage=useCallback(({from,message}:{from:string,message:string})=>{
         if(toUser===from){
-            setChats([...chats,{from,to:fromUser,message}]);
+            setChats((chats)=>[...chats,{from,to:fromUser,message}]);
         }
-    },[chats, fromUser, toUser])
+    },[fromUser, toUser])
     useEffect(() => {
         getPreviousChats().catch(()=>{
             toast("Error in fetching messages.", {

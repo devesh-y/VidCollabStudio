@@ -5,4 +5,5 @@ dist
 .firebase
 .firebaserc
 firebase.json
+firebase-debug.log
 *.mp4

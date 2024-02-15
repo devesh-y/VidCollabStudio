@@ -1,6 +1,6 @@
 import React, {memo, useCallback, useRef, useState} from "react";
 import {database, fireStorage} from "@/utilities/firebaseconf.ts";
-import {deleteObject, getDownloadURL, ref} from "firebase/storage";
+import {deleteObject, getDownloadURL, ref, StorageReference, uploadBytes} from "firebase/storage";
 import {Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger} from "@/components/ui/dialog.tsx";
 import {Label} from "@/components/ui/label.tsx";
 import {Input} from "@/components/ui/input.tsx";
@@ -14,30 +14,69 @@ import {Rating} from "@/components/Rating.tsx";
 import {deleteDoc, doc, updateDoc} from "firebase/firestore";
 import {Textarea} from "@/components/ui/textarea.tsx";
 import {toast} from "sonner";
+import {SHA256} from "crypto-js";
+type videoMetaInfoType={
+    title: string, description: string, tags: string
+}
 export const VideoComp=memo(({video,dispatch,creatorEmail,userType}: {
     creatorEmail: string,
     dispatch:   React.Dispatch<{type: string, payload: videoInfoType | videoInfoType[] | string}>,
     userType: string,
     video: videoInfoType,
 })=>{
-    const promtInfo=useRef<HTMLButtonElement>(null)
-    const [videoInfo,setVideoInfo]=useState({title:video.title,description:video.description,tags:video.tags})
+    const thumbNailRef=useRef<HTMLInputElement>(null);
+    const promptInfo=useRef<HTMLButtonElement>(null)
+    const [videoInfo,setVideoInfo]=useState<videoMetaInfoType>({title:video.title,description:video.description,tags:video.tags})
     const [uploadingVideo,setUploadingVideo]=useState(false);
-    const updateVideoInfoFunc=useCallback(()=>{
-        updateDoc(doc(database, 'creators/' + creatorEmail + "/videos", video.id), videoInfo).then(()=>{
-            dispatch({type:'updateVideoInfo',payload: {...video,...videoInfo}})
+    const fireStorageUpload = useCallback(async (storeRef: StorageReference,file:File)=>{
+        return new Promise((resolve, reject)=>{
+            uploadBytes(storeRef,file).then((snapshot)=>{
+                getDownloadURL(snapshot.ref).then((url)=>{
+                    resolve(url);
+                })
+            }).catch((e)=>{
+                reject(e);
+            })
         })
-        
-    },[creatorEmail, dispatch, video, videoInfo])
-
-    const downloadVideo=useCallback(()=>{
-        getDownloadURL(ref(fireStorage,video.filepath)).then((url)=>{
-            const a=document.createElement("a");
-            a.href=url;
-            a.target="_blank";
-            a.click();
-        })
-    },[video.filepath])
+    },[])
+    const updateVideoInfoFunc=useCallback(async()=>{
+        try {
+            let thumbNailUrl=video.thumbNailUrl;
+            let thumbNailPath=video.thumbNailPath;
+            if(thumbNailRef.current && thumbNailRef.current.files){
+                const file=thumbNailRef.current.files[0];
+                const fileName=file.name;
+                const arr=fileName.split('.');
+                const fileExt=arr[arr.length-1];
+                const currDateTime=(new Date().getTime()).toString();
+                const uniqueId=SHA256(currDateTime+creatorEmail).toString();
+                thumbNailPath =uniqueId+"."+fileExt;
+                const storeRef=ref(fireStorage,thumbNailPath);
+                thumbNailUrl =await fireStorageUpload(storeRef,file) as string;
+                deleteObject(ref(fireStorage,video.thumbNailPath)).catch(()=>{
+                    console.log("error in deleting previous thumbNail");
+                })
+            }
+            await updateDoc(doc(database, 'creators/' + creatorEmail + "/videos", video.id), videoInfo);
+            dispatch({type:'updateVideoInfo',payload: {...video,...videoInfo,thumbNailPath,thumbNailUrl}})
+            toast("Updated Successfully.", {
+                action: {
+                    label: "Close",
+                    onClick: () => console.log("Close"),
+                },
+            })
+        }
+        catch (e) {
+            console.log(e)
+            toast("Update Error.", {
+                action: {
+                    label: "Close",
+                    onClick: () => console.log("Close"),
+                },
+            })
+        }
+    },[creatorEmail, dispatch, fireStorageUpload, video, videoInfo])
+    
     const deleteVideo=useCallback( ()=>{
         //delete from files database
         const pr1=deleteDoc(doc(database,"creators/"+creatorEmail+"/videos",video.id)).catch(()=>{
@@ -92,7 +131,7 @@ export const VideoComp=memo(({video,dispatch,creatorEmail,userType}: {
 
     return <>
         <Dialog>
-            <DialogTrigger ref={promtInfo} hidden={true}>
+            <DialogTrigger ref={promptInfo} hidden={true}>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
@@ -120,6 +159,15 @@ export const VideoComp=memo(({video,dispatch,creatorEmail,userType}: {
                         </Label>
                         <Input  className="col-span-3" placeholder="Enter tags separated by ," value={videoInfo.tags} onChange={(e) => setVideoInfo({...videoInfo,tags: e.target.value})}/>
                     </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="picture" className="text-right">
+                            Thumbnail:
+                        </Label>
+                        <Button variant={"link"}>
+                            <a href={video.thumbNailUrl} target={"_blank"}>Open</a>
+                        </Button>
+                        <Input id="picture" type="file" className={"col-span-2"} accept={"image/*"} ref={thumbNailRef}/>
+                    </div>
                 </div>
                 <DialogFooter className="sm:justify-end">
                     <DialogClose asChild>
@@ -135,7 +183,7 @@ export const VideoComp=memo(({video,dispatch,creatorEmail,userType}: {
             <div className={"flex flex-col gap-1 max-sm:self-start"}
                  onClick={() => {
                      if(userType==="creator") {
-                         promtInfo.current?.click()
+                         promptInfo.current?.click()
                      }
                  }}>
                 <p><span className={"font-bold"}>Title:</span> <i>{video.title}</i></p>
@@ -145,7 +193,7 @@ export const VideoComp=memo(({video,dispatch,creatorEmail,userType}: {
             <div className={"flex items-center gap-2 max-sm:self-center"}>
                 {userType==="creator" && video.editedBy? <Rating dispatch={dispatch} video={video} creatorEmail={creatorEmail}/>  :<></>}
                 {userType == "creator" ? <Button title={"Upload to YouTube"}  className={"w-16"} variant={"secondary"} disabled={uploadingVideo} onClick={uploadToYoutube}>{uploadingVideo ? <LuLoader2 className={"animate-spin w-full h-full"} />:<GrUploadOption className={"w-full h-full"}  />}</Button>:<></>}
-                <Button className={"w-16"} onClick={downloadVideo}><FiDownloadCloud className={"w-full h-full"} /></Button>
+                <Button className={"w-16"}><a target={"_blank"} className={"w-full h-full"} href={video.fileUrl}><FiDownloadCloud className={"w-full h-full"} /></a></Button>
                 {userType == "creator" ? <Button variant={"destructive"} onClick={deleteVideo} className={"w-16"} ><MdDeleteForever className={"w-full h-full"}  /></Button>:<></>}
 
             </div>

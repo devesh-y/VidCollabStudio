@@ -5,7 +5,7 @@ import {Progress} from "@/components/ui/progress.tsx";
 import {doc, getDoc, setDoc} from "firebase/firestore";
 import {database, fireStorage} from "@/utilities/firebaseconf.ts";
 import {SHA256} from "crypto-js";
-import {StorageReference, ref, uploadBytesResumable} from "firebase/storage";
+import {StorageReference, ref, uploadBytesResumable, getDownloadURL} from "firebase/storage";
 import {videoInfoType} from "@/utilities/getCreatorVideos.ts";
 
 export const UploadFile = memo(({dispatch, creatorEmail, editorEmail, userType}: {
@@ -24,13 +24,20 @@ export const UploadFile = memo(({dispatch, creatorEmail, editorEmail, userType}:
                 (snapshot) => {
                     const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                     console.log('Upload is ' + progress + '% done');
-                    setUploadProgress(progress);
-                    if(progress===100){
-                        setUploadProgress(0);
-                        resolve("done");
+                    if(progress>=95){
+                        setUploadProgress(95);
                     }
+                    else{
+                        setUploadProgress(progress);
+                    }
+
                 }, (error) => {
                     reject(error.message)
+                },()=>{
+                getDownloadURL(task.snapshot.ref).then((url)=>{
+                    resolve(url);
+                    setUploadProgress(98);
+                })
                 }
             );
         })
@@ -53,16 +60,18 @@ export const UploadFile = memo(({dispatch, creatorEmail, editorEmail, userType}:
                 const uniqueId=SHA256(CurrDateTime+creatorEmail).toString();
                 const filepath=uniqueId+"."+fileExt;
                 const storeRef=ref(fireStorage,filepath);
-                await fireStorageUpload(storeRef,file);
+                const fileUrl =await fireStorageUpload(storeRef,file) as string;
                 console.log("uploaded")
-                const values={id: CurrDateTime, title: filename, description: "", tags: "", thumbNailUrl: "", filepath, thumbNailPath: "",rating: 0, editedBy: (userType==="editor")?editorEmail:""};
-                await setDoc(doc(database, "creators" + "/" + creatorEmail + "/videos", CurrDateTime),values );
-                dispatch({type: 'addVideo', payload: values})
+                const newVideo={id: CurrDateTime, title: filename, description: "", tags: "", thumbNailUrl: "", filepath,fileUrl, thumbNailPath: "",rating: 0, editedBy: (userType==="editor")?editorEmail:""};
+                await setDoc(doc(database, "creators" + "/" + creatorEmail + "/videos", CurrDateTime),newVideo );
+                dispatch({type: 'addVideo', payload: newVideo})
                 setUploadLoading(false);
+                setUploadProgress(0);
 
             }
         }
         catch (e) {
+            console.log(e)
             console.log("error in uploading file");
         }
 
