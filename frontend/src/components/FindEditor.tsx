@@ -17,6 +17,10 @@ export const FindEditor=memo(({creatorEmail}:{creatorEmail:string})=>{
         docs.forEach((doc) => {
             editors.push({email:doc.id,rating:doc.data().rating,people:doc.data().people})
         })
+
+        editors.sort((a,b)=>{
+            return b.rating/((b.people)?(b.people):1)-a.rating / ((a.people)?(a.people):1)
+        })
         setEditors(editors as EditorInfo[])
 
     },[])
@@ -34,7 +38,7 @@ export const FindEditor=memo(({creatorEmail}:{creatorEmail:string})=>{
         <div className={"bg-gray-400 rounded-md p-2 font-bold mt-2 mb-1"}>
             Get Editors
         </div>
-        <Table>
+        <Table className={"max-w-3xl"}>
             <TableCaption>A list of top Editors.</TableCaption>
             <TableHeader>
                 <TableRow>

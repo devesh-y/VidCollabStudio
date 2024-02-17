@@ -57,12 +57,12 @@ router.post('/getEmail', async (req, res) => {
     const {access_token, refresh_token} = tokens
 
     oAuth2Client.setCredentials(tokens);
-    const userouth = google.oauth2({
+    const userAuth = google.oauth2({
         version: 'v2',
         auth: oAuth2Client
     })
 
-    userouth.userinfo.get((err, response) => {
+    userAuth.userinfo.get((err, response) => {
         if (err) {
             res.send(JSON.stringify({"error":"error occurred while fetching email address"}));
         } else if (response && response.data.email) {
@@ -113,10 +113,11 @@ router.post('/uploadVideo', async(req:express.Request, res:express.Response) => 
                 if(!videoId){
                     videoId=await uploadVideo(title, description, tagsArray, filepath,ytAuth)
                 }
-                await uploadThumbnail(ytAuth,videoId,thumbNailPath)
                 if(!youtubeId){
                     await updateDoc(doc(database, 'creators/' + email + "/videos", id), {youtubeId:videoId});
                 }
+                await uploadThumbnail(ytAuth,videoId,thumbNailPath)
+
 
                 res.status(200).send(JSON.stringify({data:"video uploaded successfully"}));
             }

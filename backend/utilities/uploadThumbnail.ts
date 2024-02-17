@@ -12,7 +12,7 @@ export const uploadThumbnail=async (ytAuth:OAuth2Client,videoId:string,thumbNail
             media: {
                 body: stream
             },
-        }, function(err, response) {
+        }, function(err) {
             if (err) {
                 console.log('The API returned an error: ' + err);
                 reject("thumbnail upload failed")
