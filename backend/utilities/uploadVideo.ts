@@ -1,15 +1,12 @@
 import { fireStorage} from "./firebaseConfiguration";
 import {google} from "googleapis";
 import {getMetadata, getStream, ref} from "firebase/storage";
+import { OAuth2Client } from "google-auth-library";
 
-export const uploadVideo = async (title: string, description: string, tags: string[], filepath: string,access_token:string,refresh_token:string)=>{
+export const uploadVideo = async (title: string, description: string, tags: string[], filepath: string, ytAuth: OAuth2Client):Promise<string> =>{
     try {
         let progress=0;
-        const currauth=new google.auth.OAuth2({
-            credentials:{
-                access_token,refresh_token
-            }
-        })
+
         const {size}=await getMetadata(ref(fireStorage,filepath));
 
         return new Promise((resolve, reject)=>{
@@ -20,7 +17,7 @@ export const uploadVideo = async (title: string, description: string, tags: stri
             })
             const service = google.youtube('v3')
             service.videos.insert({
-                auth: currauth,
+                auth: ytAuth,
                 part: ['snippet','status'],
                 requestBody: {
                     snippet: {
@@ -40,13 +37,14 @@ export const uploadVideo = async (title: string, description: string, tags: stri
             }, async function (err, response) {
                 if (err) {
                     console.log('The API returned an error: ' + err);
-                    reject(err.message)
+                    reject("error in uploading video")
 
                 } else {
                     if (response) {
                         console.log(response.data);
-                        resolve("video uploaded successfully")
-                    } else {
+                        resolve(response.data.id as string)
+                    }
+                    else {
                         reject("error in getting uploaded video id")
                     }
                 }

@@ -5,6 +5,20 @@ import { doc, getDoc, setDoc, updateDoc} from "firebase/firestore";
 import {database} from "./firebaseConfiguration";
 import {uploadVideo} from "./uploadVideo";
 import {getTitleDescription} from "./askAI";
+import {uploadThumbnail} from "./uploadThumbnail";
+export type videoInfoType ={
+    filepath:string,
+    fileUrl:string,
+    id:string,
+    title:string,
+    description:string,
+    tags:string,
+    thumbNailUrl:string,
+    thumbNailPath:string,
+    rating:number,
+    editedBy:string,
+    youtubeId:string
+}
 export const router=Router();
 const client_id = process.env.VITE_CLIENT_ID;
 const client_secret = process.env.VITE_CLIENT_SECRET;
@@ -69,47 +83,56 @@ router.post('/getEmail', async (req, res) => {
 
 })
 
-router.post('/uploadVideo', (req:express.Request, res:express.Response) => {
-    const {id, email} = req.body;
-    console.log(id, email);
-    getDoc(doc(database, 'creators/' + email + "/videos", id)).then(async (snap) => {
+router.post('/uploadVideo', async(req:express.Request, res:express.Response) => {
+    try {
+        const {id, email} = req.body;
+        console.log(id, email);
+        const snap=await getDoc(doc(database, 'creators/' + email + "/videos", id));
         if (snap.exists()) {
-            const {filepath, title, description, tags} = snap.data();
-            const tagsarray = tags.split(',');
-            getDoc( doc(database,'creators',email)).then(async (snap)=>{
-                if(snap.exists()){
-                    const {refresh_token}=snap.data();
+            const {filepath, title, description, tags,thumbNailPath,youtubeId} = snap.data() as videoInfoType;
+            const tagsArray = tags.split(',');
+            const docSnap=await getDoc( doc(database,'creators',email))
+            if(docSnap.exists()){
+                const {refresh_token}=docSnap.data();
 
-                    //refresh the access token
-                    const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_url);
-                    oAuth2Client.setCredentials({
-                        refresh_token
-                    })
-                    const {credentials}=await oAuth2Client.refreshAccessToken();
+                //refresh the access token
+                const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_url);
+                oAuth2Client.setCredentials({
+                    refresh_token
+                })
+                const {credentials}=await oAuth2Client.refreshAccessToken();
 
-                    updateDoc(doc(database,"creators",email),{
-                        access_token:credentials.access_token,
-                        refresh_token:credentials.refresh_token
-                    }).then(()=>{
-                        uploadVideo(title, description, tagsarray, filepath,credentials.access_token as string,credentials.refresh_token as string).then((data) => {
-                            res.status(200).send(JSON.stringify({data}));
-                        }).catch((err) => {
-                            res.status(501).send(JSON.stringify({error:err}));
-                        })
-                    })
-
-
+                await updateDoc(doc(database,"creators",email),{
+                    access_token:credentials.access_token,
+                    refresh_token:credentials.refresh_token
+                })
+                const ytAuth=new google.auth.OAuth2({
+                    credentials
+                })
+                let videoId=youtubeId;
+                if(!videoId){
+                    videoId=await uploadVideo(title, description, tagsArray, filepath,ytAuth)
                 }
-            })
+                await uploadThumbnail(ytAuth,videoId,thumbNailPath)
+                if(!youtubeId){
+                    await updateDoc(doc(database, 'creators/' + email + "/videos", id), {youtubeId:videoId});
+                }
 
-
+                res.status(200).send(JSON.stringify({data:"video uploaded successfully"}));
+            }
+            else{
+                res.status(404).send(JSON.stringify({error:"doc not found"}));
+            }
         }
         else{
             res.status(404).send(JSON.stringify({error:"video not found"}));
         }
-    }).catch(() => {
-        res.status(404).send(`{error:"error in getting data from database"}`);
-    })
+
+    }
+    catch (err) {
+        res.status(501).send(JSON.stringify({error:(err as Error).message}));
+    }
+
 
 })
 router.post("/askTitleDescription",async (req,res)=>{

@@ -62,7 +62,7 @@ export const UploadFile = memo(({dispatch, creatorEmail, editorEmail, userType}:
                 const storeRef=ref(fireStorage,filepath);
                 const fileUrl =await fireStorageUpload(storeRef,file) as string;
                 console.log("uploaded")
-                const newVideo={id: CurrDateTime, title: filename, description: "", tags: "", thumbNailUrl: "", filepath,fileUrl, thumbNailPath: "",rating: 0, editedBy: (userType==="editor")?editorEmail:""};
+                const newVideo={id: CurrDateTime, title: filename, description: "", tags: "", thumbNailUrl: "", filepath,fileUrl, thumbNailPath: "",rating: 0,youtubeId:"", editedBy: (userType==="editor")?editorEmail:""};
                 await setDoc(doc(database, "creators" + "/" + creatorEmail + "/videos", CurrDateTime),newVideo );
                 dispatch({type: 'addVideo', payload: newVideo})
                 setUploadLoading(false);

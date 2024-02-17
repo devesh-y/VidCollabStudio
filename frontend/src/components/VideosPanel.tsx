@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useReducer, useState} from "react";
 import {LuLoader2} from "react-icons/lu";
 import {getCreatorVideos, videoInfoType} from "@/utilities/getCreatorVideos.ts";
-import {VideoComp} from "@/components/VideoComp.tsx";
+import {Video} from "@/components/Video.tsx";
 import {AskAI} from "@/components/AskAI.tsx";
 import {ChatPanel} from "@/components/ChatPanel.tsx";
 import {FindEditor} from "@/components/FindEditor.tsx";
@@ -77,7 +77,7 @@ export const VideosPanel = memo(({creatorEmail, userType, editorEmail}: {
         {loading?<div className={"flex justify-center"}><LuLoader2 className={"animate-spin"} size={50}/></div>:
             <div className={"flex flex-col gap-4"}>
                 {videos.map((value, index) => {
-                            return <VideoComp key={index} video={value} creatorEmail={creatorEmail} dispatch={dispatch} userType={userType}/>})
+                            return <Video key={index} video={value} creatorEmail={creatorEmail} dispatch={dispatch} userType={userType}/>})
                         }
                 </div>
         }

@@ -18,7 +18,7 @@ import {SHA256} from "crypto-js";
 type videoMetaInfoType={
     title: string, description: string, tags: string
 }
-export const VideoComp=memo(({video,dispatch,creatorEmail,userType}: {
+export const Video=memo(({video,dispatch,creatorEmail,userType}: {
     creatorEmail: string,
     dispatch:   React.Dispatch<{type: string, payload: videoInfoType | videoInfoType[] | string}>,
     userType: string,
