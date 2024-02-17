@@ -3,6 +3,7 @@ import {ChatPanel} from "@/components/ChatPanel.tsx";
 import {collection, getDocs} from "firebase/firestore";
 import {database} from "@/utilities/firebaseconf.ts";
 import {toast} from "sonner";
+import {Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow} from "./ui/table";
 type EditorInfo={
     email:string,
     people:number,
@@ -33,29 +34,27 @@ export const FindEditor=memo(({creatorEmail}:{creatorEmail:string})=>{
         <div className={"bg-gray-400 rounded-md p-2 font-bold mt-2 mb-1"}>
             Get Editors
         </div>
-        <div className={"rounded-md overflow-hidden border-2"}>
-            <table className={" w-full "}>
-                <thead>
-                <tr className={"text-gray-500 border-2 "}>
-                    <th className={"p-1"}>Email</th>
-                    <th className={"p-1"}> Rating</th>
-                    <th className={"p-1"}>Edits</th>
-                </tr>
-                </thead>
-                <tbody>
-                {editors.map((value, index) => {
-                    return <tr key={index} className={"text-center border-2"}>
-                        <td className={"p-1"}>{value.email} <ChatPanel fromUser={creatorEmail} toUser={value.email} requestEditor={true}/></td>
-                        <td>{value.rating / (value.people === 0 ? 1 : value.people)}</td>
-                        <td>{value.people}</td>
-                    </tr>
-                })}
+        <Table>
+            <TableCaption>A list of top Editors.</TableCaption>
+            <TableHeader>
+                <TableRow>
+                    <TableHead>Email</TableHead>
+                    <TableHead className={"text-center"}>Rating</TableHead>
+                    <TableHead className={"text-center"}>Edits</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                {editors.map((value) => (
+                    <TableRow key={value.email} >
+                        <TableCell className="font-medium ">{value.email} <ChatPanel fromUser={creatorEmail} toUser={value.email} requestEditor={true}/></TableCell>
+                        <TableCell className={"text-center"}>{value.rating / (value.people === 0 ? 1 : value.people)}</TableCell>
+                        <TableCell className={"text-center"}>{value.people}</TableCell>
+                    </TableRow>
+                ))}
+            </TableBody>
 
-                </tbody>
+        </Table>
 
-
-            </table>
-        </div>
 
     </div>
 })
