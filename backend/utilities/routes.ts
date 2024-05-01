@@ -116,7 +116,9 @@ router.post('/uploadVideo', async(req:express.Request, res:express.Response) => 
                 if(!youtubeId){
                     await updateDoc(doc(database, 'creators/' + email + "/videos", id), {youtubeId:videoId});
                 }
-                await uploadThumbnail(ytAuth,videoId,thumbNailPath)
+                if(thumbNailPath){
+                    await uploadThumbnail(ytAuth,videoId,thumbNailPath);
+                }
 
 
                 res.status(200).send(JSON.stringify({data:"video uploaded successfully"}));
