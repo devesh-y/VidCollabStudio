@@ -26,7 +26,7 @@ export const CreatorsRequest=memo(({editorEmail}:{editorEmail:string})=>{
     }, [getCreatorsRequests]);
     return <>
         <div className={"bg-gray-400 rounded-md p-2 font-bold mt-2 mb-1"}>
-            Request from Editors
+            Request from Creators
         </div>
         <div className={"flex flex-wrap gap-4 items-center"}>
             {creators.map((value,index)=>{
